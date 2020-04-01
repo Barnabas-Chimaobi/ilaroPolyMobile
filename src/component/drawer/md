@@ -1,0 +1,359 @@
+//Menu.js
+// /components/Menu.js
+import React from 'react';
+import {StyleSheet, Text, View, Image, AsyncStorage} from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+
+const Menu = (props) => {
+  const { state, setParams, navigate } = props.navigation;
+  const params = state.params || {}
+  const { Id, FirstName, OtherName, FullName, ImageFileUrl } = params.PersonDetails;
+
+  return (
+    <View style={styles.Menucontainer}>
+      <View>
+        <Image
+            style={styles.profileImage}
+            source={{uri: ImageFileUrl}}
+          /> 
+      </View>
+  <Text>{FullName}</Text>
+      <View style={styles.board}>
+        <View style={styles.eachIcon}>
+          <MaterialIcons
+            name="dashboard"
+            size={25}
+            color="green"
+            style={styles.icon}
+          />
+          <Text
+            style={styles.boardText}
+            onPress={() => {
+              this.props.navigation.navigate('Dashboard');
+              this.props.closeDrawer();
+            }}>
+            Dashboard
+          </Text>
+          <View></View>
+        </View>
+
+        <View style={styles.eachIcon}>
+          <MaterialIcons
+            name="person"
+            size={25}
+            color="green"
+            style={styles.icon}
+          />
+          <Text
+            onPress={() => {
+              this.props.navigation.navigate('Profile');
+              this.props.closeDrawer();
+            }}
+            style={styles.boardText}>
+            My Profile
+          </Text>
+        </View>
+
+        <View style={styles.eachIcon}>
+          <MaterialIcons
+            name="notifications"
+            size={25}
+            color="green"
+            style={styles.icon}
+          />
+          <Text
+            onPress={() => {
+              this.props.navigation.navigate('Notifications');
+              this.props.closeDrawer();
+            }}
+            style={styles.boardText}>
+            Notifications
+          </Text>
+        </View>
+
+        <View style={styles.eachIcon}>
+          <MaterialIcons
+            name="comment"
+            size={25}
+            color="green"
+            style={styles.icon}
+          />
+          <Text
+            style={styles.boardText}
+            onPress={() => {
+              this.props.navigation.navigate('Dashboard');
+              this.props.closeDrawer();
+            }}>
+            Join Conversation
+          </Text>
+          <View></View>
+        </View>
+
+        <View style={styles.eachIcon}>
+          <MaterialIcons
+            name="settings"
+            size={25}
+            color="green"
+            style={styles.icon}
+          />
+          <Text
+            onPress={() => {
+              this.props.navigation.navigate('Profile');
+              this.props.closeDrawer();
+            }}
+            style={styles.boardText}>
+            Settings
+          </Text>
+        </View>
+
+        <View style={styles.eachIcon}>
+          <MaterialIcons
+            name="vpn-key"
+            size={25}
+            color="green"
+            style={styles.icon}
+          />
+          <Text
+            onPress={() => {
+              this.props.navigation.navigate('Notifications');
+              this.props.closeDrawer();
+            }}
+            style={styles.boardText}>
+            Sign Out
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+export default Menu;
+
+const styles = StyleSheet.create({
+  Menucontainer: {
+    flex: 1,
+  },
+  board: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    borderColor: 'white',
+    borderStyle: 'solid',
+    height: 450,
+    width: 350,
+  },
+  boardText: {
+    fontSize: 20,
+    marginLeft: 20,
+    marginTop: -25,
+    marginLeft: 70,
+  },
+  icon: {
+    marginTop: 10,
+    marginLeft: 20,
+  },
+  eachIcon: {
+    borderBottomColor: 'lightgrey',
+    paddingBottom: 7,
+    marginTop: 20
+  },
+  profileImage: {
+    height: 150,
+    width: 150,
+    alignSelf: "center"
+  },
+});
+
+
+
+//Menu.js
+// /components/Menu.js
+import React from 'react';
+import {StyleSheet, Text, View, Image, AsyncStorage} from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+
+const Menu = props => {
+  let Id, FirstName, OtherName, FullName, ImageFileUrl;
+  AsyncStorage.getItem("PersonDetails").then(dtr => {
+    dtr = JSON.parse(dtr);
+    console.log("ERROR: ", dtr);
+    
+    ImageFileUrl = dtr.ImageFileUrl;
+    FullName = dtr.FullName,
+    Id = dtr.Id
+  })
+  return (
+    <View style={styles.Menucontainer}>
+      <View>
+        <Image
+            style={styles.profileImage}
+            source={{uri: ImageFileUrl}}
+          /> 
+      </View>
+  <Text>RRRR: {FullName}</Text>
+      <View style={styles.board}>
+        <View style={styles.eachIcon}>
+          <MaterialIcons
+            name="dashboard"
+            size={25}
+            color="green"
+            style={styles.icon}
+          />
+          <Text
+            style={styles.boardText}
+            onPress={() => {
+              this.props.navigation.navigate('Dashboard');
+              this.props.closeDrawer();
+            }}>
+            Dashboard
+          </Text>
+          <View></View>
+        </View>
+
+        <View style={styles.eachIcon}>
+          <MaterialIcons
+            name="person"
+            size={25}
+            color="green"
+            style={styles.icon}
+          />
+          <Text
+            onPress={() => {
+              this.props.navigation.navigate('Profile');
+              this.props.closeDrawer();
+            }}
+            style={styles.boardText}>
+            My Profile
+          </Text>
+        </View>
+
+        <View style={styles.eachIcon}>
+          <MaterialIcons
+            name="notifications"
+            size={25}
+            color="green"
+            style={styles.icon}
+          />
+          <Text
+            onPress={() => {
+              this.props.navigation.navigate('Notifications');
+              this.props.closeDrawer();
+            }}
+            style={styles.boardText}>
+            Notifications
+          </Text>
+        </View>
+
+        <View style={styles.eachIcon}>
+          <MaterialIcons
+            name="comment"
+            size={25}
+            color="green"
+            style={styles.icon}
+          />
+          <Text
+            style={styles.boardText}
+            onPress={() => {
+              this.props.navigation.navigate('Dashboard');
+              this.props.closeDrawer();
+            }}>
+            Join Conversation
+          </Text>
+          <View></View>
+        </View>
+
+        <View style={styles.eachIcon}>
+          <MaterialIcons
+            name="settings"
+            size={25}
+            color="green"
+            style={styles.icon}
+          />
+          <Text
+            onPress={() => {
+              this.props.navigation.navigate('Profile');
+              this.props.closeDrawer();
+            }}
+            style={styles.boardText}>
+            Settings
+          </Text>
+        </View>
+
+        <View style={styles.eachIcon}>
+          <MaterialIcons
+            name="vpn-key"
+            size={25}
+            color="green"
+            style={styles.icon}
+          />
+          <Text
+            onPress={() => {
+              this.props.navigation.navigate('Notifications');
+              this.props.closeDrawer();
+            }}
+            style={styles.boardText}>
+            Sign Out
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+export default Menu;
+
+const styles = StyleSheet.create({
+  Menucontainer: {
+    flex: 1,
+  },
+  board: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    borderColor: 'white',
+    borderStyle: 'solid',
+    height: 450,
+    width: 350,
+  },
+  boardText: {
+    fontSize: 20,
+    marginLeft: 20,
+    marginTop: -25,
+    marginLeft: 70,
+  },
+  icon: {
+    marginTop: 10,
+    marginLeft: 20,
+  },
+  eachIcon: {
+    borderBottomColor: 'lightgrey',
+    paddingBottom: 7,
+    marginTop: 20
+  },
+  profileImage: {
+    height: 150,
+    width: 150,
+    alignSelf: "center"
+  },
+});
+
+
+
+   "@react-native-community/masked-view": "^0.1.7",
+    "formik": "^2.1.4",
+    "react": "16.11.0",
+    "react-native": "0.62.0",
+    "react-native-drawer": "^2.5.1",
+    "react-native-gesture-handler": "^1.6.1",
+    "react-native-material-dropdown": "^0.11.1",
+    "react-native-reanimated": "^1.7.1",
+    "react-native-responsive-screen": "^1.4.1",
+    "react-native-safe-area-context": "^0.7.3",
+    "react-native-safe-area-view": "^1.0.0",
+    "react-native-screens": "^2.4.0",
+    "react-native-table-component": "^1.2.1",
+    "react-native-vector-icons": "^6.6.0",
+    "react-native-webview": "^9.0.2",
+    "react-navigation": "^4.3.3",
+    "react-navigation-drawer": "^2.4.7",
+    "react-navigation-stack": "^2.3.7"
