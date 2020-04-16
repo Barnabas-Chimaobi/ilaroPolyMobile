@@ -1,14 +1,21 @@
 //Menu.js
 // /components/Menu.js
 import React from 'react';
-import {StyleSheet, Text, View, Image, AsyncStorage} from 'react-native';
+import {StyleSheet, Text, View, Image, AsyncStorage, Alert} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-
+import Logout from "../logout/logout"
 const Menu = (props) => {
   const { state, setParams, navigate } = props.navigation;
   const params = state.params || {}
   const { Id, FirstName, OtherName, FullName, ImageFileUrl } = params.PersonDetails;
+  
+const signOut = () => {
+    AsyncStorage.clear();
+    Alert.alert("You Are Logged Out")
+    props.navigation.navigate('Login')
+}
+
 
   return (
     <View style={styles.Menucontainer}>
@@ -18,7 +25,7 @@ const Menu = (props) => {
             source={{uri: ImageFileUrl}}
           /> 
       </View>
-  <Text>{FullName}</Text>
+  <Text style={{alignSelf: "center"}}>{FullName}</Text>
       <View style={styles.board}>
         <View style={styles.eachIcon}>
           <MaterialIcons
@@ -82,7 +89,7 @@ const Menu = (props) => {
           <Text
             style={styles.boardText}
             onPress={() => {
-              props.navigation.navigate('Dashboard');
+              props.navigation.navigate('Conversation');
               props.closeDrawer();
             }}>
             Join Conversation
@@ -116,7 +123,8 @@ const Menu = (props) => {
           />
           <Text
             onPress={() => {
-              props.navigation.navigate('Notifications');
+              // props.navigation.navigate('Logout');
+              signOut()
               props.closeDrawer();
             }}
             style={styles.boardText}>

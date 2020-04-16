@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, useState, useEffect} from 'react';
 import {
   View,
   KeyboardAvoidingView,
@@ -11,30 +11,61 @@ import {
   TouchableNativeFeedback,
   TouchableOpacity,
   AsyncStorage,
+  DrawerLayoutAndroid,
+  Linking,
 } from 'react-native';
+import {WebView} from 'react-native-webview';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Menu from '../drawer/menu';
+// import {Item} from 'native-base';
 
-const CourseContentDetails = props => {
+const CourseContentDetails = (props) => {
   CourseContentDetails.navigationOptions = {
-    header: null,
+    headerShown: false,
   };
 
   const {state, setParams, navigate} = props.navigation;
   const params = state.params || {};
-  console.log(props);
+
+  const API_ROOT = 'https://applications.federalpolyilaro.edu.ng/';
 
   return (
     <KeyboardAvoidingView style={{flex: 1}} behavior="padding" enabled>
+      <View style={styles.headerWrapper}>
+        <View style={styles.headerWrapper1}>
+          <TouchableNativeFeedback
+            onPress={() => {
+              props.navigation.navigate('CourseContent');
+            }}>
+            <MaterialIcons
+              name="arrow-back"
+              style={{color: 'white', fontSize: 20, marginLeft: 15}}
+            />
+          </TouchableNativeFeedback>
+          <Text style={{fontSize: 22, color: 'white', marginLeft: 20}}>
+            E-Learning
+          </Text>
+        </View>
+      </View>
       <View>
         {params.newArray.map((items, index) => {
           return (
             <View>
               <SectionList
                 sections={[
-                  {title: 'PDF', data: [items.Url]},
+                  {
+                    title: 'PDF / WORD',
+                    data: [
+                      `${API_ROOT}${items.Url.substring(2, items.Url.length)}`,
+                    ],
+                  },
                   {title: 'Videos', data: [items.VideoUrl]},
                 ]}
                 renderItem={({item}) => (
-                  <TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      Linking.openURL(item), console.log(item);
+                    }}>
                     <Text style={styles.item}>{item}</Text>
                   </TouchableOpacity>
                 )}
@@ -43,36 +74,11 @@ const CourseContentDetails = props => {
                 )}
                 keyExtractor={(item, index) => index}
               />
-
-              {/* <WebView
-                style={ {  marginTop: (Platform.OS == 'ios') ? 20 : 0,} }
-                javaScriptEnabled={true}
-                domStorageEnabled={true}
-                source={{uri: 'https://www.youtube.com/embed/'+items.YoutubeVideoUrl }}
-        /> */}
-
-              {/* <YoutubePlayer
-                ref={playerRef}
-                height={300}
-                width={400}
-                videoId={items.YoutubeVideoUrl}
-                play={playing}
-                onChangeState={event => console.log(event)}
-                onReady={() => console.log("ready")}
-                onError={e => console.log(e)}
-                onPlaybackQualityChange={q => console.log(q)}
-                volume={50}
-                playbackRate={1}
-                playerParams={{
-                  preventFullScreen: true,
-                  cc_lang_pref: "us",
-                  showClosedCaptions: true
-                }}
-                /> */}
             </View>
           );
         })}
       </View>
+      <View style={{height: 300}}></View>
     </KeyboardAvoidingView>
   );
 };
@@ -94,7 +100,21 @@ const styles = StyleSheet.create({
   item: {
     padding: 10,
     fontSize: 18,
-    height: 44,
+    height: 60,
+  },
+
+  headerWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#17732B',
+    height: 52,
+  },
+
+  headerWrapper1: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

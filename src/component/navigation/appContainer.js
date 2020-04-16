@@ -9,6 +9,7 @@ import Dashboard from "../dashboard/dashboard"
 import Lecture from "../lecture/lecture"
 import CourseContent from "../coursecontent/coursetent"
 import CourseContentDetails from "../contentdetails/courseContentDetails"
+import Logout from "../logout/logout"
 
 const AppNavigator = createStackNavigator(
   {
@@ -18,7 +19,8 @@ const AppNavigator = createStackNavigator(
     Dashboard: Dashboard,
     Lecture,
     CourseContent,
-    CourseContentDetails
+    CourseContentDetails,
+    Logout
   },
   {
     initialRouteName: "Splash",

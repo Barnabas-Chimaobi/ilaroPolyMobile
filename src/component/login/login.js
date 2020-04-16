@@ -8,9 +8,12 @@ import {
   ScrollView,
   Image,
   AsyncStorage,
+  Alert,
+  Switch,
 } from 'react-native';
+// import PasswordInputText from 'react-native-hide-show-password-input';
 import Menu from '../drawer/menu';
-import Dashboard from "../dashboard/dashboard"
+import Dashboard from '../dashboard/dashboard';
 import {Formik} from 'formik';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
@@ -19,11 +22,16 @@ export default class StudentLogin extends Component {
     headerShown: false,
   };
 
-  state = {
-    regno: '',
-    password: '',
-    newArrayField: [],
-  };
+  constructor(props) {
+    super(props);
+    this.toggleSwitch = this.toggleSwitch.bind(this);
+    this.state = {
+      showPassword: true,
+      regno: '',
+      password: '',
+      newArrayField: [],
+    };
+  }
 
   authentication = () => {
     if (this.state.regno !== '' && this.state.password !== '') {
@@ -36,36 +44,46 @@ export default class StudentLogin extends Component {
             newArrayField: prevState.newArrayField.concat(newData),
           }));
 
-          
-         const mappedArray = this.state.newArrayField.map(item => {
+          const mappedArray = this.state.newArrayField.map(item => {
             return {
-                 FullName: item.OutPut.FullName
-            }
-            })
+              FullName: item.OutPut.FullName,
+            };
+          });
 
-          const API_ROOT = "https://applications.federalpolyilaro.edu.ng";
-          const { Id, FirstName, LastName, OtherName, ImageFileUrl } = newData.OutPut.ApplicationForm.Person;
-          const { MatricNumber } = newData.OutPut;
+          const API_ROOT = 'https://applications.federalpolyilaro.edu.ng';
+          const {
+            Id,
+            FirstName,
+            LastName,
+            OtherName,
+            ImageFileUrl,
+          } = newData.OutPut.ApplicationForm.Person;
+          const {MatricNumber} = newData.OutPut;
 
           const PersonDetails = {
             Id,
             FirstName,
             LastName,
             OtherName,
-            FullName:`${FirstName} ${LastName} ${OtherName}`,
+            FullName: `${FirstName} ${LastName} ${OtherName}`,
             ImageFileUrl: `${API_ROOT}${ImageFileUrl}`,
-            MatricNumber
+            MatricNumber,
           };
 
-          AsyncStorage.setItem("PersonDetails", JSON.stringify(PersonDetails));
+          AsyncStorage.setItem("personDetails", JSON.stringify(PersonDetails));
 
-          this.props.navigation.navigate('Dashboard', {mappedArray: mappedArray, PersonDetails});
+          this.props.navigation.navigate('Dashboard', {
+            mappedArray: mappedArray,
+            PersonDetails,
+          });
+          this.setState({regno: ''});
+          this.setState({password: ''});
         })
         .catch(err => {
           console.log(err, 'there was an error');
         });
     } else {
-      alert('please fill the fieslds');
+      Alert.alert('please fill complete log in details');
     }
   };
 
@@ -73,6 +91,10 @@ export default class StudentLogin extends Component {
     return text => {
       this.setState({[name]: text});
     };
+  }
+
+  toggleSwitch() {
+    this.setState({showPassword: !this.state.showPassword});
   }
 
   render() {
@@ -87,7 +109,6 @@ export default class StudentLogin extends Component {
 
     return (
       <View style={styles.container}>
-    
         <ScrollView>
           <Image
             source={require('../../assets/ilarologo.jpeg')}
@@ -96,7 +117,6 @@ export default class StudentLogin extends Component {
               width: 173,
               height: 150,
               alignSelf: 'center',
-              marginRight: 20,
             }}
           />
 
@@ -122,8 +142,16 @@ export default class StudentLogin extends Component {
                   onChangeText={this.handleChange('password')}
                   value={this.state.password}
                   placeholder="Password"
-                  keyboardType="numeric"
+                  // secureTextEntry={true}
+                  secureTextEntry={this.state.showPassword}
                 />
+                <View   style={styles.switch}>
+                <Switch
+                  onValueChange={this.toggleSwitch}
+                  value={!this.state.showPassword}
+                
+                />
+                </View>
               </View>
               <View style={styles.password}>
                 <View>
@@ -155,12 +183,6 @@ const styles = StyleSheet.create({
     marginTop: 40,
     marginBottom: 40,
   },
-
-  // headerContainer: {
-  //   //  flex: 1,
-  //    backgroundColor: '#ffa94d',
-
-  //  },
 
   header1: {
     margin: 15,
@@ -228,96 +250,10 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     color: 'black',
   },
+
+  switch: {
+    marginTop: -35,
+    width: 50,
+    alignSelf: "flex-end"
+  }
 });
-
-
-// import React, { useState, useEffect } from 'react';
-// import { TextInput, View, StyleSheet, Text, TouchableOpacity} from 'react-native';
-
-
-// const Login = () => {
-//   const [username, setUsername] = useState('');
-//   const [password, setPassword] = useState('');
-//   const [arrayField, newArrayField] = useState([]);
-
-
-//   const handleChange = (name)=> {
-//     return text => {
-//       setUsername({[name]: text});
-//     };
-//    }
-
-//    const handleChanges = (name)=> {
-//     return text => {
-//       setUsername({[name]: text});
-//     };
-//    }
- 
-
-     
-//     function authentication () {
-//     if (username !== '' && password !== '') {
-//       fetch(
-//         `https://applications.federalpolyilaro.edu.ng/api/E_Learning/LoginStudent?MatricNo=${username}&Password=${password}`
-//       )
-//         .then(data => data.json())
-//         .then(({data: arrayField})=> {
-
-//           newArrayField(arrayField)
-//           // newArrayField(()=> ({
-//           //   newArrayField: [newArrayField.concat(newData)],
-//           // }));
-
-//           //  const mappedArray = newArrayField.map(item => {
-//           //   return {
-//           //        FullName: item.OutPut.FullName
-//           //   }
-//           //   })
-  
-//           console.log(data)
-
-//           this.props.navigation.navigate('Dashboard', )
-//         })
-//         .catch(err => {
-//           console.log(err, 'there was an error');
-//         });
-//     } else {
-//       alert('please fill the fieslds');
-//     }
-//   }
-
-//  return (
-//     <React.Fragment>
-//        <View>
-//               <TextInput
-//                 type="email"
-//                 name="username"
-//                 placeholder="Username"
-//                 value={username}
-//                 onChangeText={(username) => setUsername({username})}
-//                 // onChangeText={()=>handleChange()}
-                
-//               />
-//               <TextInput
-//                 type="password"
-//                 name="password"
-//                 placeholder="Password"
-//                 value={password}
-//                 onChangeText={(password) => setPassword({password})}
-
-//               />
-//             <TouchableOpacity
-//               onPress={()=>authentication()}
-//         >
-//                 <Text>
-//                 Login
-//                 </Text>
-            
-//             </TouchableOpacity>
-//        </View>
-  
-//     </React.Fragment>
-//   );
-// }
-
-// export default Login;
