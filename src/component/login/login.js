@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   TextInput,
@@ -10,8 +9,10 @@ import {
   AsyncStorage,
   Alert,
   Switch,
+  ActivityIndicator,
 } from 'react-native';
-// import PasswordInputText from 'react-native-hide-show-password-input';
+import Spinner from 'react-native-loading-spinner-overlay';
+import {Icon, Text, Label, Input, Item} from 'native-base';
 import Menu from '../drawer/menu';
 import Dashboard from '../dashboard/dashboard';
 import {Formik} from 'formik';
@@ -24,27 +25,58 @@ export default class StudentLogin extends Component {
 
   constructor(props) {
     super(props);
-    this.toggleSwitch = this.toggleSwitch.bind(this);
     this.state = {
+      showIndicator: false,
       showPassword: true,
       regno: '',
       password: '',
+      password: true,
+      icon: 'eye-off',
       newArrayField: [],
     };
   }
+
+  // componentDidMount() {
+  //   setTimeout(() => {
+  //      this.onButtonPress();
+  //         }, 500);
+  //   }
+
+  changeIcon() {
+    this.setState({
+      icon: this.state.icon === 'eye' ? 'eye-off' : 'eye',
+      showPassword: !this.state.showPassword,
+    });
+  }
+
+  onButtonPress = () => {
+    if (this.state.password !== '' && this.state.regno !== '') {
+      this.setState({showIndicator: true});
+    } else {
+      this.setState({showIndicator: false});
+    }
+  };
+  //  resetLoader = () => {
+  //    if(this.state.newArrayField !== ""){
+  //     this.setState({ showIndicator: false });
+
+  //    }else{
+  //     this.state.showIndicator == true
+  //    }
+  //  }
 
   authentication = () => {
     if (this.state.regno !== '' && this.state.password !== '') {
       fetch(
         `https://applications.federalpolyilaro.edu.ng/api/E_Learning/LoginStudent?MatricNo=${this.state.regno}&Password=${this.state.password}`,
       )
-        .then(data => data.json())
-        .then(newData => {
-          this.setState(prevState => ({
+        .then((data) => data.json())
+        .then((newData) => {
+          this.setState((prevState) => ({
             newArrayField: prevState.newArrayField.concat(newData),
           }));
 
-          const mappedArray = this.state.newArrayField.map(item => {
+          const mappedArray = this.state.newArrayField.map((item) => {
             return {
               FullName: item.OutPut.FullName,
             };
@@ -69,8 +101,9 @@ export default class StudentLogin extends Component {
             ImageFileUrl: `${API_ROOT}${ImageFileUrl}`,
             MatricNumber,
           };
+          this.setState({showIndicator: false});
 
-          AsyncStorage.setItem("personDetails", JSON.stringify(PersonDetails));
+          AsyncStorage.setItem('personDetails', JSON.stringify(PersonDetails));
 
           this.props.navigation.navigate('Dashboard', {
             mappedArray: mappedArray,
@@ -79,7 +112,7 @@ export default class StudentLogin extends Component {
           this.setState({regno: ''});
           this.setState({password: ''});
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err, 'there was an error');
         });
     } else {
@@ -88,13 +121,9 @@ export default class StudentLogin extends Component {
   };
 
   handleChange(name) {
-    return text => {
+    return (text) => {
       this.setState({[name]: text});
     };
-  }
-
-  toggleSwitch() {
-    this.setState({showPassword: !this.state.showPassword});
   }
 
   render() {
@@ -105,7 +134,6 @@ export default class StudentLogin extends Component {
     //     matricno: item.OutPut.MatricNumber,
     //   };
     // });
-    // console.log(gotten);
 
     return (
       <View style={styles.container}>
@@ -142,28 +170,46 @@ export default class StudentLogin extends Component {
                   onChangeText={this.handleChange('password')}
                   value={this.state.password}
                   placeholder="Password"
-                  // secureTextEntry={true}
+                  secureTextEntry={true}
                   secureTextEntry={this.state.showPassword}
                 />
-                <View   style={styles.switch}>
-                <Switch
-                  onValueChange={this.toggleSwitch}
-                  value={!this.state.showPassword}
-                
-                />
-                </View>
-              </View>
-              <View style={styles.password}>
-                <View>
-                  <TouchableOpacity
-                    style={styles.invoiceButton}
+                <View style={styles.switch}>
+                  <Icon
+                    name={this.state.icon}
                     onPress={() => {
-                      this.authentication();
-                    }}>
-                    <Text style={styles.generateInv}>SIGN IN</Text>
-                  </TouchableOpacity>
+                      this.changeIcon();
+                    }}
+                  />
                 </View>
               </View>
+              {this.state.showIndicator ? (
+                // <View style={styles.container}>
+                //   {/*Code to show Activity Indicator*/}
+                //   <ActivityIndicator size="large" color="#0000ff" />
+                //   {/*Size can be large/ small*/}
+                // </View>:
+                <Spinner
+                  color={'green'}
+                  //visibility of Overlay Loading Spinner
+                  visible={this.state.showIndicator}
+                  //Text with the Spinner
+                  textContent={'Logging in...'}
+                  //Text style of the Spinner Text
+                  textStyle={styles.spinnerTextStyle}
+                />
+              ) : (
+                <View style={styles.password}>
+                  <View>
+                    <TouchableOpacity
+                      style={styles.invoiceButton}
+                      onPress={() => {
+                        this.authentication(), this.onButtonPress();
+                      }}>
+                      <Text style={styles.generateInv}>SIGN IN</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
             </View>
           </View>
         </ScrollView>
@@ -212,11 +258,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 30,
     borderWidth: 1,
-    width: 136,
-    height: 35,
+    width: 176,
+    height: 37,
     borderRadius: 5,
     backgroundColor: '#17732B',
     borderColor: '#17732B',
+    elevation: 5,
     // marginBottom: 15
   },
   generateInv: {
@@ -240,7 +287,7 @@ const styles = StyleSheet.create({
   invoiceButton1: {
     alignSelf: 'center',
     marginTop: 30,
-    width: 136,
+    width: 194,
     height: 35,
 
     // marginBottom: 15
@@ -254,6 +301,7 @@ const styles = StyleSheet.create({
   switch: {
     marginTop: -35,
     width: 50,
-    alignSelf: "flex-end"
-  }
+    alignSelf: 'flex-end',
+  },
+
 });

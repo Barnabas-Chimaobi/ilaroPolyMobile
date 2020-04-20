@@ -9,20 +9,24 @@ import {
   TextInput,
   TouchableOpacity,
   AsyncStorage,
+  Alert,
 } from 'react-native';
+import Spinner from 'react-native-loading-spinner-overlay';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Menu from '../drawer/menu';
 
 class Lecture extends Component {
   state = {
+    showIndicator: false,
+    selectedCourseText: '',
     courses: [],
-    semesterText: [ "", "First Semester", "Second Semester" ],
+    semesterText: ['', 'First Semester', 'Second Semester'],
     semesters: [0, 1, 2],
-    newCourse: '',
-    newSemester: 0,
+    newCourse: 0,
+    newSemester: '',
     contentList: [],
     PersonDetails: {
-      Id: "",
+      Id: '',
       FirstName: null,
       OtherName: null,
       FullName: null,
@@ -30,68 +34,90 @@ class Lecture extends Component {
     },
   };
 
+  onButtonPress = () => {
+    if (this.state.newSemester !== '' && this.state.selectedCourseText !== '') {
+      this.setState({showIndicator: true});
+    } else {
+      this.setState({showIndicator: false});
+    }
+  };
+
+  onButtonPresser = () => {
+    this.setState({showIndicator: true});
+  };
+
   componentDidMount() {
     //Method 1: The prop Way
     const {state, setParams, navigate} = this.props.navigation;
     const params = state.params || {};
-    console.log(params , ": RRRRRRR")
+    console.log(params, ': RRRRRRR');
 
-    console.log(params.PersonDetails.Id, ":GGGGGGGG")
-
+    console.log(params.PersonDetails.Id, ':GGGGGGGG');
 
     this.setState({
       PersonDetails: params.PersonDetails,
-      
     });
-    
+
     //Method 2: The Async Storage Way
     //const { Id, FirstName, OtherName, FullName, ImageFileUrl } = JSON.parse(await AsyncStorage.getItem("PersonDetails"));
   }
 
-  collectCourses = value => {
+  collectCourses = (value) => {
     if (typeof value === 'number' && value > 0) {
       fetch(`https://applications.federalpolyilaro.edu.ng/api/E_Learning/RegisteredCourses?PersonId=${this.state.PersonDetails?.Id}
       &Semester=${value}`)
-        .then(response => response.json())
-        .then(response1 => {
+        .then((response) => response.json())
+        .then((response1) => {
           this.setState({
             courses: [...response1.Output],
+            showIndicator: false,
           });
-          console.log("ghhj:", response1);
+          console.log('ghhj:', response1);
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
         });
     }
   };
 
-
   viewCourseContent = () => {
     fetch(
-      `https://applications.federalpolyilaro.edu.ng/api/E_Learning/ContentType?PersonId=${this.state.PersonDetails?.Id}&CourseId=${this.state.newCourse}`,)
-      .then(data => data.json())
-      .then(Data => {
-        const newArray = Data.Output.map(newData => {
+      `https://applications.federalpolyilaro.edu.ng/api/E_Learning/ContentType?PersonId=${this.state.PersonDetails?.Id}&CourseId=${this.state.newCourse}`,
+    )
+      .then((data) => data.json())
+      .then((Data) => {
+        const newArray = Data.Output.map((newData) => {
           return {
             Id: newData.Id,
             Name: newData.Name,
           };
         });
-        console.log(Data, ', ARRAY');
+
+        newArray == ''
+          ? Alert.alert('there is no study material for this course')
+          : console.log(Data, ', ARRAY');
 
         this.setState({
           contentList: newArray,
+          showIndicator: false,
         });
+
+        console.log(this.state.newCourse, ':NEWCOUSERjjjjj');
         const {state, setParams, navigate} = this.props.navigation;
         const params = state.params || {};
-        this.props.navigation.navigate("CourseContent", { newArray: newArray, courseId: this.state.newCourse ,PersonDetails: params.PersonDetails});
+        this.props.navigation.navigate('CourseContent', {
+          newArray: newArray,
+          courseId: this.state.newCourse,
+          PersonDetails: params.PersonDetails,
+          newsCourse: this.state.selectedCourseText,
+        });
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   };
 
-  alert = item => {
+  alert = (item) => {
     alert(item);
   };
   openDrawer = () => {
@@ -106,10 +132,29 @@ class Lecture extends Component {
     headerShown: false,
   };
 
+  // courseList = (label) => {
+  //   return this.state.courses.map((y, z) => {
+  //     return <Picker.Item label={y.CourseName} key={z} value={y.CourseId} />;
+  //   });
+  // };
+
   courseList = () => {
-    return this.state.courses.map((y, z) => {
-      return <Picker.Item label={y.CourseName} key={z} value={y.CourseId} />;
-    });
+    if (this.state.courses == '') {
+      return <Picker.Item label={`select course`} />;
+    } else {
+      return this.state.courses.map((y, z) => {
+        return (
+          <Picker.Item
+            style={styles.pitem}
+            label={y.CourseName}
+            key={z}
+            value={y.CourseId}
+          />
+        );
+      });
+      // console.log(`SEmester: ${this.state.semesterText[z]}`)
+      // return <Picker.Item label={this.state.semesterText[z]} key={z} value={y} />;
+    }
   };
 
   semesterList = () => {
@@ -117,8 +162,11 @@ class Lecture extends Component {
       if (z === 0) {
         return <Picker.Item label={`Select Semester`} key={z} value={y} />;
       } else {
-      return <Picker.Item label={this.state.semesterText[z]} key={z} value={y} />;
-}
+        console.log(`SEmester: ${this.state.semesterText[z]}`);
+        return (
+          <Picker.Item label={this.state.semesterText[z]} key={z} value={y} />
+        );
+      }
     });
   };
 
@@ -133,16 +181,16 @@ class Lecture extends Component {
             closeDrawer={this.closeDrawer}
           />
         )}
-        ref={_drawer => {
+        ref={(_drawer) => {
           this.drawer = _drawer;
         }}>
         <View style={styles.headerWrapper}>
           <View style={styles.headerWrapper1}>
             <TouchableNativeFeedback onPress={(this.onPress = this.openDrawer)}>
               <MaterialIcon
-                 name="menu"
+                name="menu"
                 // name="keyboard-backspace"
-                style={{color: 'white', fontSize: 20, marginLeft: 15}}
+                style={{color: 'white', fontSize: 27, marginLeft: 15}}
               />
             </TouchableNativeFeedback>
             <Text style={{fontSize: 22, color: 'white', marginLeft: 20}}>
@@ -171,44 +219,76 @@ class Lecture extends Component {
           </View>
 
           <View style={styles.textInputWrapper}>
-            <Text style={styles.textDescriprion}>Select Semester</Text>
+            <Spinner
+              color={'green'}
+              //visibility of Overlay Loading Spinner
+              visible={this.state.showIndicator}
+              textContent={'Loading...'}
+              //Text with the Spinner
+              //Text style of the Spinner Text
+              textStyle={styles.spinnerTextStyle}
+            />
             <TextInput style={styles.textInput} />
             <Picker
-              style={styles.picker}
+              style={styles.picker1}
               selectedValue={this.state.newSemester}
-              onValueChange={value => this.collectCourses(value)}>
+              onValueChange={(value) => {
+                this.setState({
+                  newSemester: value,
+                });
+                this.onButtonPresser();
+                this.collectCourses(value);
+              }}>
               {this.semesterList()}
             </Picker>
           </View>
 
           <View style={styles.textInputWrapper}>
-            <Text style={styles.textDescriprion}>Select Course</Text>
+            {/* <Text style={styles.textDescriprion}>Select Course</Text> */}
             <TextInput style={styles.textInput} />
             <Picker
-              style={styles.picker}
+              style={styles.picker2}
               selectedValue={this.state.newCourse}
-              onValueChange={value => (
-                this.setState({newCourse: value})
-              )}>
+              onValueChange={(value) => {
+                this.setState({
+                  newCourse: value,
+                  selectedCourseText: this.state.courses.find(
+                    (c) => c.CourseId === value,
+                  ).CourseName,
+                });
+              }}>
               {this.courseList()}
             </Picker>
           </View>
-
-          <View style={styles.noteContainer1}>
-            <TouchableOpacity style={styles.noteCon}      onPress={() => {
-                      this.viewCourseContent(); console.log("CCCCCCCCCC:",  this.state.PersonDetails?.Id), console.log("DDDD:", this.state.newCourse)
-                    }}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  marginTop: 5,
-                  fontSize: 20,
-                  color: 'white',
+            <Spinner
+              color={'green'}
+              //visibility of Overlay Loading Spinner
+              visible={this.state.showIndicator}
+              textContent={'Loading...'}
+              //Text with the Spinner
+              //Text style of the Spinner Text
+              textStyle={styles.spinnerTextStyle}
+            />
+            <View style={styles.noteContainer1}>
+              <TouchableOpacity
+                style={styles.noteCon}
+                onPress={() => {
+                  this.onButtonPress();
+                  this.viewCourseContent();
+                  console.log('CCCCCCCCCC:', this.state.PersonDetails?.Id),
+                    console.log('DDDD:', this.state.newCourse);
                 }}>
-                View
-              </Text>
-            </TouchableOpacity>
-          </View>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    marginTop: 5,
+                    fontSize: 20,
+                    color: 'white',
+                  }}>
+                  View
+                </Text>
+              </TouchableOpacity>
+            </View>
         </View>
       </DrawerLayoutAndroid>
     );
@@ -216,223 +296,6 @@ class Lecture extends Component {
 }
 
 export default Lecture;
-
-
-// class Lecture extends Component {
-//   state = {
-//     courses: [],
-//     semesterText: [ "", "First Semester", "Second Semester" ],
-//     semesters: [0, 1, 2],
-//     newCourse: '',
-//     newSemester: 0,
-//     contentList: [],
-//     PersonDetails: {
-//       Id: "",
-//       FirstName: null,
-//       OtherName: null,
-//       FullName: null,
-//       ImageFileUrl: null,
-//     },
-//   };
-
-//   componentDidMount() {
-//     //Method 1: The prop Way
-//     const {state, setParams, navigate} = this.props.navigation;
-//     const params = state.params || {};
-//     console.log(params , ": RRRRRRR")
-
-//     console.log(params.PersonDetails.Id, ":GGGGGGGG")
-
-
-//     this.setState({
-//       PersonDetails: params.PersonDetails,
-      
-//     });
-    
-//     //Method 2: The Async Storage Way
-//     //const { Id, FirstName, OtherName, FullName, ImageFileUrl } = JSON.parse(await AsyncStorage.getItem("PersonDetails"));
-//   }
-
-//   collectCourses = value => {
-//     if (typeof value === 'number' && value > this.state.semesters[0]) {
-//       fetch(`https://applications.federalpolyilaro.edu.ng/api/E_Learning/RegisteredCourses?PersonId=${this.state.PersonDetails?.Id}
-//       &Semester=${value}`)
-//         .then(response => response.json())
-//         .then(response1 => {
-//           this.setState({
-//             courses: [...response1.Output],
-//           });
-//           console.log("ghhj:", response1);
-//         })
-//         .catch(err => {
-//           console.log(err);
-//         });
-//     }
-//   };
-
-
-//   viewCourseContent = () => {
-//     fetch(
-//       `https://applications.federalpolyilaro.edu.ng/api/E_Learning/ContentType?PersonId=${this.state.PersonDetails?.Id}&CourseId=${this.state.newCourse}`,
-//     ).then(data => data.json())
-//       .then(Data => {
-//         const newArray = Data.Output.map(newData => {
-//           return {
-//             Id: newData.Id,
-//             Name: newData.Name,
-//           };
-//         });
-//         console.log(Data, ', ARRAY');
-
-//         this.setState({
-//           contentList: newArray,
-//         });
-
-//         this.props.navigation.navigate("CourseContent", { newArray: newArray,  } );
-//       })
-//       .catch(err => {
-//         console.log(err);
-//       });
-//   };
-
-//   alert = item => {
-//     alert(item);
-//   };
-//   openDrawer = () => {
-//     this.drawer.openDrawer();
-//   };
-
-//   closeDrawer = () => {
-//     this.drawer.closeDrawer();
-//   };
-
-//   static navigationOptions = {
-//     headerShown: false,
-//   };
-
-//   courseList = () => {
-//     return this.state.courses.map((y, z) => {
-//       return <Picker.Item label={y.CourseName} key={z} value={y.CourseId} />;
-//     });
-//   };
-
-//   semesterList = () => {
-//     return this.state.semesters.map((y, z) => {
-//       if (z === this.state.semesters[0]) {
-//         return <Picker.Item label={`Select Semester`} key={z} value={y} />;
-//       } else {
-//         return <Picker.Item label={this.state.semesterText[z]} key={z} value={y} />;
-//       }
-//     });
-//   };
-
-//   render() {
-//     //  this.viewCourseContent()
-//     console.log(this.state.newCourse, ":WEEEEEE")
-//     console.log(this.state.PersonDetails?.Id, ":WAAAAAA")
-
-
-//     const courseCode = this.state.courses.map(item => {
-//       return item.CourseId;
-//     });
-
-//     // console.log(courseCode)
-//     // console.log(this.state.newCourse);
-//     // console.log(this.state.PersonDetails?.Id)
-
-//     return (
-//       <DrawerLayoutAndroid
-//         drawerWidth={300}
-//         drawerPosition="left"
-//         renderNavigationView={() => (
-//           <Menu
-//             navigation={this.props.navigation}
-//             closeDrawer={this.closeDrawer}
-//           />
-//         )}
-//         ref={_drawer => {
-//           this.drawer = _drawer;
-//         }}>
-//         <View style={styles.headerWrapper}>
-//           <View style={styles.headerWrapper1}>
-//             <TouchableNativeFeedback onPress={(this.onPress = this.openDrawer)}>
-//               <MaterialIcon
-//                  name="menu"
-//                 // name="keyboard-backspace"
-//                 style={{color: 'white', fontSize: 20, marginLeft: 15}}
-//               />
-//             </TouchableNativeFeedback>
-//             <Text style={{fontSize: 22, color: 'white', marginLeft: 20}}>
-//               Select Course
-//             </Text>
-//           </View>
-//         </View>
-//         <View style={styles.container}>
-//           <View style={styles.container1}>
-//             <View style={styles.noteContainer}>
-//               <MaterialIcon
-//                 style={{fontSize: 70, color: '#FAB005', alignSelf: 'center'}}
-//                 name="library-books"
-//               />
-//               <Text
-//                 style={{
-//                   textAlign: 'center',
-//                   marginTop: 15,
-//                   fontSize: 20,
-//                   marginBottom: 30,
-//                   color: 'green',
-//                 }}>
-//                 Lecture Notes
-//               </Text>
-//             </View>
-//           </View>
-
-//           <View style={styles.textInputWrapper}>
-//             <Text style={styles.textDescriprion}>Select Semester</Text>
-//             <TextInput style={styles.textInput} />
-//             <Picker
-//               style={styles.picker}
-//               selectedValue={this.state.newSemester}
-//               onValueChange={value => this.collectCourses(value)}>
-//               {this.semesterList()}
-//             </Picker>
-//           </View>
-
-//           <View style={styles.textInputWrapper}>
-//             <Text style={styles.textDescriprion}>Select Course</Text>
-//             <TextInput style={styles.textInput} />
-//             <Picker
-//               style={styles.picker}
-//               selectedValue={this.state.newCourse}
-//               onValueChange={value => (
-//                 this.setState({newCourse: value})
-//               )}>
-//               {this.courseList()}
-//             </Picker>
-//           </View>
-
-//           <View style={styles.noteContainer1}>
-//             <TouchableOpacity style={styles.noteCon}      onPress={() => {
-//                       this.viewCourseContent();
-//                     }}>
-//               <Text
-//                 style={{
-//                   textAlign: 'center',
-//                   marginTop: 5,
-//                   fontSize: 20,
-//                   color: 'white',
-//                 }}>
-//                 View
-//               </Text>
-//             </TouchableOpacity>
-//           </View>
-//         </View>
-//       </DrawerLayoutAndroid>
-//     );
-//   }
-// }
-
-// export default Lecture;
 
 const styles = StyleSheet.create({
   headerWrapper: {
@@ -465,21 +328,32 @@ const styles = StyleSheet.create({
   },
 
   container: {
-    borderWidth: 0.5,
+    // borderWidth: 0.5,
     margin: 15,
-    borderColor: 'gray',
+    borderColor: '#E5E5E5',
     backgroundColor: 'white',
+    borderRadius: 5,
+    elevation: 5,
+    borderBottomWidth: 3,
+    borderRightWidth: 3,
   },
   noteContainer1: {
     borderWidth: 0.5,
     backgroundColor: 'green',
-    width: 80,
+    width: 210,
     alignSelf: 'center',
     height: 40,
     marginTop: 70,
     marginBottom: 30,
+    borderRadius: 4,
+    elevation: 4,
   },
-  picker: {
+  picker1: {
+    marginLeft: 10,
+    marginTop: -40,
+  },
+
+  picker2: {
     marginLeft: 10,
     marginTop: -40,
   },

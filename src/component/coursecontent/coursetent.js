@@ -12,7 +12,9 @@ import {
   TouchableOpacity,
   AsyncStorage,
   DrawerLayoutAndroid,
+  Alert,
 } from 'react-native';
+import Spinner from 'react-native-loading-spinner-overlay';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Menu from '../drawer/menu';
 
@@ -26,8 +28,18 @@ class CourseContent extends Component {
     super(props);
     this.state = {
       courseId: '',
+      courseContent: '',
+      showIndicator: false,
     };
   }
+
+  onButtonPress = () => {
+    if (this.state.newSemester !== '' && this.state.selectedCourseText !== '') {
+      this.setState({showIndicator: true});
+    } else {
+      this.setState({showIndicator: false});
+    }
+  };
 
   componentDidMount() {
     const {state, setParams, navigate} = this.props.navigation;
@@ -69,18 +81,25 @@ class CourseContent extends Component {
         const newArray = Data.Output.map((newData) => {
           // let youtubeId = newData.VideoUrl.split('/');
           // youtubeId = youtubeId[youtubeId.length - 1];
-
           return {
             Id: newData.Id,
             Url: newData.Url,
-            // VideoUrl: newData.VideoUrl,
+            VideoUrl: newData.VideoUrl,
             // YoutubeVideoUrl: youtubeId,
           };
         });
 
-        console.log(newArray, ':SSSSSS');
+        this.setState({showIndicator: false});
+        newArray == ''
+          ? Alert.alert('there is no content for this topic')
+          : console.log(newArray, ':SSSSSS');
+
+        const {state, setParams, navigate} = this.props.navigation;
+        const params = state.params || {};
         this.props.navigation.navigate('CourseContentDetails', {
           newArray: newArray,
+          courseContent: this.state.courseContent,
+          newsCourse: params.newsCourse,
         });
       })
       .catch((err) => {
@@ -113,46 +132,91 @@ class CourseContent extends Component {
                 }}>
                 <MaterialIcons
                   name="arrow-back"
-                  style={{color: 'white', fontSize: 20, marginLeft: 15}}
+                  style={{color: 'white', fontSize: 27, marginLeft: 15}}
                 />
               </TouchableNativeFeedback>
               <Text style={{fontSize: 22, color: 'white', marginLeft: 20}}>
-                E-Learning
+                Back
               </Text>
             </View>
           </View>
-          <Text style={{textAlign:"center", fontSize: 18, fontWeight:"bold"}}>Course Content</Text>
-          <View>
-            {params.newArray.map((items, index) => {
-              return (
-                <SectionList
-                  sections={[
-                    {title: 'COURSE NAME', data: [items.Name]},
-                    // { ContentId: "CONTENT ID", data: [items.Id] }
-                  ]}
-                  renderItem={({item}) => (
-                    <View style={styles.container1}>
-                      <View>
-                        <Text style={styles.item}>{items.Name}</Text>
+          <View style={styles.mainContainer}>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: 18,
+                fontWeight: 'bold',
+                margin: 15,
+              }}>
+              Course: {params.newsCourse}
+            </Text>
+
+            <View
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: 'green',
+                width: '90%',
+                marginBottom: 15,
+                alignSelf: 'center',
+              }}
+            />
+            <Text
+              style={{
+                textAlign: 'center',
+                color: 'green',
+                fontFamily: 'sans-serif-light',
+                fontSize: 18,
+                marginBottom: 20,
+              }}>
+              Topics:
+            </Text>
+            <Spinner
+              color={'green'}
+              //visibility of Overlay Loading Spinner
+              visible={this.state.showIndicator}
+              //Text with the Spinner
+              textContent={'Loading...'}
+              //Text style of the Spinner Text
+              textStyle={styles.spinnerTextStyle}
+            />
+            <View>
+              {params.newArray.map((items, index) => {
+                return (
+                  <SectionList
+                    sections={[
+                      {title: 'COURSE NAME', data: [items.Name]},
+                      // { ContentId: "CONTENT ID", data: [items.Id] }
+                    ]}
+                    renderItem={({item}) => (
+                      <View style={styles.container1}>
+                        <View>
+                          <TouchableOpacity
+                            id={item.Id}
+                            onPress={() => {
+                              this.viewCourseContentDetails(items.Id);
+                              this.onButtonPress();
+                              this.setState({
+                                courseContent: item,
+                              });
+                              console.log(
+                                'ABIAAAAAAAA:',
+                                this.state.courseContent,
+                              );
+                              console.log('BARNNNNNN:', params.newArray);
+                            }}>
+                            <Text style={styles.fileClick}>{items.Name}</Text>
+                          </TouchableOpacity>
+                        </View>
                       </View>
-                      <View>
-                        <TouchableOpacity
-                          id={item.Id}
-                          onPress={() => {
-                            this.viewCourseContentDetails(items.Id);
-                          }}>
-                          <Text style={styles.fileClick}>check content</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  )}
-                  // renderSectionHeader={({section}) => (
-                  //   <Text style={styles.sectionHeader}>{section.title}</Text>
-                  // )}
-                  keyExtractor={(item, index) => index}
-                />
-              );
-            })}
+                    )}
+                    // renderSectionHeader={({section}) => (
+                    //   <Text style={styles.sectionHeader}>{section.title}</Text>
+                    // )}
+                    keyExtractor={(item, index) => index}
+                  />
+                );
+              })}
+            </View>
           </View>
         </KeyboardAvoidingView>
       </DrawerLayoutAndroid>
@@ -197,17 +261,28 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    margin: 5
+    margin: 5,
   },
   fileClick: {
+    alignSelf: 'center',
     fontSize: 16,
-    borderWidth: 1,
-    padding: 3,
-    borderRadius: 3,
-    backgroundColor: "green",
-    color: "white",
-    borderColor: "green"
-  }
+    borderWidth: 0.11,
+    padding: 5,
+    borderRadius: 5,
+    width: 300,
+    borderColor: 'green',
+    fontFamily: 'sans-serif-medium',
+  },
+  mainContainer: {
+    margin: 15,
+    borderColor: '#E5E5E5',
+    backgroundColor: 'white',
+    borderRadius: 5,
+    elevation: 5,
+    borderBottomWidth: 3,
+    borderRightWidth: 3,
+    height: '80%',
+  },
 });
 
 export default CourseContent;

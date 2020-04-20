@@ -13,6 +13,7 @@ import {
   AsyncStorage,
   DrawerLayoutAndroid,
   Linking,
+  Alert,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -27,14 +28,6 @@ const CourseContentDetails = (props) => {
   const {state, setParams, navigate} = props.navigation;
   const params = state.params || {};
 
-
- const press = params.newArray.map((one) => {
-   return one.Url
- })
-
-//  const presses = press.substring(4, press.length)
- console.log(press)
-
   const API_ROOT = 'https://applications.federalpolyilaro.edu.ng/';
 
   return (
@@ -47,93 +40,130 @@ const CourseContentDetails = (props) => {
             }}>
             <MaterialIcons
               name="arrow-back"
-              style={{color: 'white', fontSize: 20, marginLeft: 15}}
+              style={{color: 'white', fontSize: 27, marginLeft: 15}}
             />
           </TouchableNativeFeedback>
           <Text style={{fontSize: 22, color: 'white', marginLeft: 20}}>
-            E-Learning
+            Back
           </Text>
         </View>
       </View>
-      <View>
-        <Text style={{textAlign:"center", fontSize: 15, fontWeight: "bold"}}>PDF/WORD</Text>
-        {params.newArray.map((items, index) => {
-          return (
-            <View>
-              <SectionList
-                sections={[
-                  {
-                    title: 'PDF / WORD',
-                    data: [
-                      `${API_ROOT}${items.Url.substring(2, items.Url.length)}`,
-                    ],
-                  },
-                  // {title: 'Videos', data: [items.VideoUrl]},
-                ]}
-                renderItem={({item}) => (
-                  <View style={styles.container1}>
-                    <View style={styles.fileName}>
-                    <Text>{items.Url.substring([20], items.Url.length)}</Text>
-                    </View>
+      <View style={styles.mainContainer}>
+        <View>
+          <Text
+            style={{
+              textAlign: 'center',
+              fontSize: 18,
+              fontWeight: 'bold',
+              margin: 10,
+            }}>
+            Course: {params.newsCourse}
+          </Text>
+          <Text
+            style={{
+              textAlign: 'center',
+              fontSize: 18,
+              fontWeight: 'bold',
+              margin: 15,
+              marginTop: 0,
+              fontFamily: 'sans-serif-thin',
+              color: 'green',
+            }}>
+            Topic: {params.courseContent}
+          </Text>
+          <View
+            style={{
+              borderBottomWidth: 1,
+              borderBottomColor: 'black',
+              width: '80%',
+              marginBottom: 20,
+              alignSelf: 'center',
+            }}
+          />
+          {params.newArray.map((items, index) => {
+            return (
+              <View>
+                <SectionList
+                  sections={[
+                    {
+                      title: 'PDF / WORD',
+                      data: [
+                        `${API_ROOT}${items.Url.substring(
+                          2,
+                          items.Url.length,
+                        )}`,
+                      ],
+                    },
+                    // {title: 'Videos', data: [items.VideoUrl]},
+                  ]}
+                  renderItem={({item}) => (
+                    <View style={styles.container1}>
+                      <View style={styles.fileName}>
+                        {/* <Text>{items.Url.substring([20], items.Url.length).split(".")[0]}</Text> */}
+                        <Text style={{fontFamily: 'sans-serif-medium'}}>
+                          Lecture Note
+                        </Text>
+                      </View>
 
-                    <View>
-                    <TouchableOpacity
-                    onPress={() => {
-                      Linking.openURL(item), console.log(item);
-                    }}>
-                    <Text style={styles.itemlink}>View or download</Text>
-                  </TouchableOpacity>
+                      <View>
+                        <TouchableOpacity
+                          onPress={() => {
+                            Linking.openURL(item), console.log(item);
+                          }}>
+                          <Text style={styles.itemlink}>Download</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
+                  )}
+                  // renderSectionHeader={({section}) => (
+                  //   <Text style={styles.sectionHeader}>{section.title}</Text>
+                  // )}
+                  keyExtractor={(item, index) => index}
+                />
+              </View>
+            );
+          })}
+        </View>
+        <View>
+          {params.newArray.map((items, index) => {
+            return items.VideoUrl && typeof items.VideoUrl !== 'undefined' ? (
+              <View>
+                <SectionList
+                  sections={[{title: 'Videos', data: [items.VideoUrl]}]}
+                  renderItem={({item}) => (
+                    <View style={styles.container1}>
+                      <View>
+                        <Text style={{fontFamily: 'sans-serif-medium'}}>
+                          Video Tutorial
+                        </Text>
+                      </View>
 
+                      <View>
+                        <TouchableOpacity
+                          onPress={() => {
+                            items.VideoUrl &&
+                            typeof items.VideoUrl !== 'undefined'
+                              ? Linking.openURL(item)
+                              : Alert.alert(
+                                  'There is no video content to display',
+                                );
+                          }}>
+                          <Text style={styles.item}>watch</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
-               
-                )}
-                // renderSectionHeader={({section}) => (
-                //   <Text style={styles.sectionHeader}>{section.title}</Text>
-                // )}
-                keyExtractor={(item, index) => index}
-              />
-
-            </View>
-          );
-        })}
+                  )}
+                  // renderSectionHeader={({section}) => (
+                  //   <Text style={styles.sectionHeader}>{section.title}</Text>
+                  // )}
+                  keyExtractor={(item, index) => index}
+                />
+              </View>
+            ) : null;
+          })}
+        </View>
       </View>
-      {/* <View>
-        {params.newArray.map((items, index) => {
-          return (
-            <View>
-              <SectionList
-                sections={[
-                  {title: 'Videos', data: [items.VideoUrl]},
-                ]}
-                renderItem={({item}) => (
-                  <View style={styles.container1}>
-                    <View>
-                    <Text>{items.VideoUrl}</Text>
-                    </View>
 
-                    <View>
-                    <TouchableOpacity
-                    onPress={() => {
-                      Linking.openURL(item), console.log(item);
-                    }}>
-                    <Text style={styles.item}>play</Text>
-                  </TouchableOpacity>
-                    </View>
-
-                    </View>
-               
-                )}
-                // renderSectionHeader={({section}) => (
-                //   <Text style={styles.sectionHeader}>{section.title}</Text>
-                // )}
-                keyExtractor={(item, index) => index}
-              />
-              
-            </View>
-          );
-        })}
-      </View> */}
       <View style={{height: 300}}></View>
     </KeyboardAvoidingView>
   );
@@ -154,19 +184,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(247,247,247,1.0)',
   },
   itemlink: {
-    padding: 3,
+    padding: 8,
     fontSize: 15,
+    fontFamily: 'sans-serif-condensed',
     borderWidth: 1,
     borderRadius: 3,
-    backgroundColor: "green",
-    color: "white",
-    borderColor: "green"
+    backgroundColor: 'green',
+    color: 'white',
+    borderColor: 'green',
     // height: 30,
   },
 
-  fileName: {
- 
-  },
+  fileName: {},
 
   headerWrapper: {
     display: 'flex',
@@ -182,12 +211,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  container1:{
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    margin: 5
-  }
+  container1: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginLeft: 15,
+    marginRight: 15,
+    marginBottom: 10,
+  },
+
+  mainContainer: {
+    margin: 15,
+    borderColor: '#E5E5E5',
+    backgroundColor: 'white',
+    borderRadius: 5,
+    elevation: 5,
+    borderBottomWidth: 3,
+    borderRightWidth: 3,
+    height: '80%',
+    // marginBottom: "10%"
+  },
+
+  item: {
+    padding: 8,
+    fontSize: 15,
+    borderWidth: 1,
+    borderRadius: 3,
+    backgroundColor: 'green',
+    color: 'white',
+    borderColor: 'green',
+    fontFamily: 'sans-serif-condensed',
+    width: 70,
+    textAlign: 'center',
+  },
 });
 
 export default CourseContentDetails;

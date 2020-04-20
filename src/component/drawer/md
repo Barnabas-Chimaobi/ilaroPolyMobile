@@ -360,3 +360,47 @@ const styles = StyleSheet.create({
 
 
     courseId: this.state.newCourse
+
+
+    <Text>{items.Url.substring([20], items.Url.length).split(".")[0]}</Text>
+
+
+  <View>
+        {params.newArray.map((items, index) => {
+          return (
+            (items.VideoUrl && typeof items.VideoUrl !== "undefined") ? 
+            <View>
+              <SectionList
+                sections={[
+                  {title: 'Videos', data: [items.VideoUrl]},
+                ]}
+                renderItem={({item}) => (
+                  <View style={styles.container1}>
+                    <View>
+                    <Text>{items.VideoUrl}</Text>
+                    </View>
+
+                    <View>
+                    <TouchableOpacity
+                    onPress={() => {
+                      (items.VideoUrl && typeof items.VideoUrl !== "undefined") ?
+                       Linking.openURL(item) : Alert.alert("There is no video content to display");
+                    }}>
+                    <Text style={styles.item}>play</Text>
+                  </TouchableOpacity>
+                    </View>
+
+                    </View>
+               
+                )}
+                // renderSectionHeader={({section}) => (
+                //   <Text style={styles.sectionHeader}>{section.title}</Text>
+                // )}
+                keyExtractor={(item, index) => index}
+              />
+              
+            </View>
+          : null
+          );
+        })}
+      </View>
