@@ -5,6 +5,72 @@ import {StyleSheet, Text, View, Image, AsyncStorage} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
+const formatAMPM = (date) => {
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  var ampm = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0'+minutes : minutes;
+  var strTime = hours + ':' + minutes + ' ' + ampm;
+  return strTime;
+}
+
+const formatFullDate(dateISOString){
+  const dt = new Date(dateISOString);
+  return `${dt.toDateString()} ${formatAMPM(dt)}`;
+}
+
+
+dt
+dt
+Sat Apr 04 2020 00:00:00 GMT+0100 (West Africa Standard Time) {}
+﻿
+const dt = new Date("2020-04-04T00:00:00");
+undefined
+console.log(dt);
+VM273:1 Sat Apr 04 2020 00:00:00 GMT+0100 (West Africa Standard Time)
+undefined
+console.log(dt.getUTCDate);
+VM444:1 ƒ getUTCDate() { [native code] }
+undefined
+console.log(dt.toLocaleDateString());
+VM520:1 4/4/2020
+undefined
+console.log(dt.toDateString());
+VM662:1 Sat Apr 04 2020
+undefined
+console.log(dt.toTimeString());
+VM969:1 00:00:00 GMT+0100 (West Africa Standard Time)
+undefined
+function formatAMPM(date) {
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  var ampm = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0'+minutes : minutes;
+  var strTime = hours + ':' + minutes + ' ' + ampm;
+  return strTime;
+}
+
+console.log(formatAMPM(dt);
+VM1299:12 Uncaught SyntaxError: missing ) after argument list
+console.log(formatAMPM(dt));
+VM1420:1 Uncaught ReferenceError: formatAMPM is not defined
+    at <anonymous>:1:9
+function formatAMPM(date) {
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  var ampm = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0'+minutes : minutes;
+  var strTime = hours + ':' + minutes + ' ' + ampm;
+  return strTime;
+}
+undefined
+
 const Menu = (props) => {
   const { state, setParams, navigate } = props.navigation;
   const params = state.params || {}

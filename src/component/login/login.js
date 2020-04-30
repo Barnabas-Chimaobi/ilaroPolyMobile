@@ -141,21 +141,26 @@ export default class StudentLogin extends Component {
           <Image
             source={require('../../assets/ilarologo.jpeg')}
             style={{
-              marginTop: 30,
-              width: 173,
-              height: 150,
+              marginTop: "30%",
+              width: 200,
+              height: 180,
               alignSelf: 'center',
+              marginBottom: -18
             }}
           />
 
           <View style>
             <View style={styles.formWrapper}>
               <View style={styles.titleStyle}>
-                <Text style={{fontSize: 25}}>LOG IN TO YOUR ACCOUNT</Text>
               </View>
+         
               <View style={styles.textInputWrapper}>
+              <Icon
+                   style={{color: "gray", fontSize:23, marginTop:-10, paddingRight: 5}}
+                    name="person"
+                  />
                 <TextInput
-                  style={styles.textInput}
+                  style={styles.textInput1}
                   name="regno"
                   onChangeText={this.handleChange('regno')}
                   value={this.state.regno}
@@ -164,30 +169,28 @@ export default class StudentLogin extends Component {
                 />
               </View>
               <View style={styles.textInputWrapper}>
+              <Icon
+                   style={{color: "gray", fontSize:23, marginTop:10, paddingRight:5}}
+                    name="key"
+                  />
                 <TextInput
-                  style={styles.textInput}
+                  style={styles.textInput2}
                   name="password"
                   onChangeText={this.handleChange('password')}
                   value={this.state.password}
                   placeholder="Password"
-                  secureTextEntry={true}
+                  clearTextOnFocus={true}
                   secureTextEntry={this.state.showPassword}
                 />
-                <View style={styles.switch}>
                   <Icon
+                   style={{color: "gray", fontSize:23, marginTop:15}}
                     name={this.state.icon}
                     onPress={() => {
                       this.changeIcon();
                     }}
                   />
-                </View>
+                
               </View>
-              {this.state.showIndicator ? (
-                // <View style={styles.container}>
-                //   {/*Code to show Activity Indicator*/}
-                //   <ActivityIndicator size="large" color="#0000ff" />
-                //   {/*Size can be large/ small*/}
-                // </View>:
                 <Spinner
                   color={'green'}
                   //visibility of Overlay Loading Spinner
@@ -197,7 +200,6 @@ export default class StudentLogin extends Component {
                   //Text style of the Spinner Text
                   textStyle={styles.spinnerTextStyle}
                 />
-              ) : (
                 <View style={styles.password}>
                   <View>
                     <TouchableOpacity
@@ -209,7 +211,6 @@ export default class StudentLogin extends Component {
                     </TouchableOpacity>
                   </View>
                 </View>
-              )}
             </View>
           </View>
         </ScrollView>
@@ -221,7 +222,8 @@ export default class StudentLogin extends Component {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-    flex: 1,
+    // flex: 1,
+    height: "100%"
   },
 
   titleStyle: {
@@ -233,13 +235,12 @@ const styles = StyleSheet.create({
   header1: {
     margin: 15,
   },
-  textInput: {
-    borderColor: 'black',
-    borderBottomWidth: 1,
-    backgroundColor: 'white',
-    borderRadius: 5,
-    width: '98%',
-    height: 50,
+  textInput1: {
+    flex:1,
+    marginTop: -18
+  },
+  textInput2: {
+    flex:1
   },
   formWrapper: {
     backgroundColor: 'white',
@@ -249,10 +250,14 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   textInputWrapper: {
-    width: '100%',
-    marginBottom: 10,
+    flexDirection: 'row',
+    borderBottomWidth: 0.5,
+    borderColor: 'gray',
+    paddingBottom: -10,
+
+    width: '80%',
+    marginTop: 10,
     alignSelf: 'center',
-    marginLeft: 10,
   },
   invoiceButton: {
     alignSelf: 'center',

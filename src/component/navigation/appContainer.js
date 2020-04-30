@@ -10,6 +10,14 @@ import Lecture from "../lecture/lecture"
 import CourseContent from "../coursecontent/coursetent"
 import CourseContentDetails from "../contentdetails/courseContentDetails"
 import Logout from "../logout/logout"
+import LectureNotes from "../lectureMaterials/lectureNotes"
+import VideoTutorial from "../lectureMaterials/videoTutorial"
+import LiveClass from "../lectureMaterials/liveClass"
+import GetAssignment from "../assignment/getAssignment"
+import ViewAssignment from "../assignment/viewAssignments"
+import SubmitAssignment from "../assignment/submitAssignmet"
+import LiveChat from "../assignment/chat"
+import SubmittedAssignment from "../assignment/submittedAssignment"
 
 const AppNavigator = createStackNavigator(
   {
@@ -20,7 +28,15 @@ const AppNavigator = createStackNavigator(
     Lecture,
     CourseContent,
     CourseContentDetails,
-    Logout
+    Logout,
+    LectureNotes,
+    VideoTutorial,
+    LiveClass,
+    GetAssignment,
+    ViewAssignment,
+    SubmitAssignment,
+    LiveChat,
+    SubmittedAssignment
   },
   {
     initialRouteName: "Splash",

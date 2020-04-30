@@ -56,6 +56,8 @@ target 'ilaroMobile1' do
 
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
+  pod 'RNFS', :path => '../node_modules/react-native-fs'
+
   target 'ilaroMobile1Tests' do
     inherit! :complete
     # Pods for testing

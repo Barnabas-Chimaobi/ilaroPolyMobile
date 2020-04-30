@@ -44,10 +44,13 @@ const Menu = (props) => {
         //Text style of the Spinner Text
         textStyle={styles.spinnerTextStyle}
       />
-      <View>
+      <View style={{backgroundColor:"#17732B"}}>
         <Image style={styles.profileImage} source={{uri: ImageFileUrl}} />
+        <Text style={{alignSelf: "flex-start", marginTop: 10, color: "white", marginLeft: 20, fontFamily: "sans-serif-condensed" ,fontSize:17}}>{FullName}</Text>
+
+        <Text style={{alignSelf: "flex-start", margin: 5, color: "white", marginLeft:20, borderWidth: 1, borderColor:"#CA9818", backgroundColor: "#CA9818", padding: 5, borderRadius:5, marginBottom: 20, fontFamily: "sans-serif-condensed", fontSize: 17 }}>{MatricNumber}</Text>
+
       </View>
-      <Text style={{alignSelf: 'center', margin: 5}}>{MatricNumber}</Text>
       <View
         style={{
           borderBottomWidth: 1,
@@ -56,12 +59,11 @@ const Menu = (props) => {
           marginBottom: 5,
         }}
       />
-      <Text style={{alignSelf: 'center', marginBottom: 18}}>{FullName}</Text>
       <View style={styles.board}>
         <View style={styles.eachIcon}>
           <MaterialIcons
             name="dashboard"
-            size={25}
+            size={20}
             color="green"
             style={styles.icon}
           />
@@ -88,7 +90,7 @@ const Menu = (props) => {
         <View style={styles.eachIcon}>
           <MaterialIcons
             name="person"
-            size={25}
+            size={20}
             color="green"
             style={styles.icon}
           />
@@ -114,7 +116,7 @@ const Menu = (props) => {
         <View style={styles.eachIcon}>
           <MaterialIcons
             name="notifications"
-            size={25}
+            size={20}
             color="green"
             style={styles.icon}
           />
@@ -140,7 +142,7 @@ const Menu = (props) => {
         <View style={styles.eachIcon}>
           <MaterialIcons
             name="comment"
-            size={25}
+            size={20}
             color="green"
             style={styles.icon}
           />
@@ -167,7 +169,7 @@ const Menu = (props) => {
         <View style={styles.eachIcon}>
           <MaterialIcons
             name="settings"
-            size={25}
+            size={20}
             color="green"
             style={styles.icon}
           />
@@ -193,7 +195,7 @@ const Menu = (props) => {
         <View style={styles.eachIcon}>
           <MaterialIcons
             name="vpn-key"
-            size={25}
+            size={20}
             color="green"
             style={styles.icon}
           />
@@ -229,7 +231,7 @@ const styles = StyleSheet.create({
   boardText: {
     fontSize: 13,
     marginLeft: 20,
-    marginTop: -25,
+    marginTop: -20,
     marginLeft: 70,
   },
   icon: {
@@ -242,12 +244,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   profileImage: {
-    height: 150,
-    width: 150,
-    alignSelf: 'center',
-    borderWidth: 0.5,
-    borderColor: 'black',
+    height: 120,
+    width: 120,
+    borderColor: "#28EB53",
+    alignSelf: "flex-start",
+    borderWidth: 3,
     borderRadius: 100,
-    marginTop: 15,
+    marginTop: 40,
+    marginLeft: 15,
   },
 });

@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   AsyncStorage,
   Alert,
+  Image
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -35,7 +36,7 @@ class Lecture extends Component {
   };
 
   onButtonPress = () => {
-    if (this.state.newSemester !== '' && this.state.selectedCourseText !== '') {
+    if (this.state.selectedCourseText !== "" && this.state.newSemester === this.state.newSemester) {
       this.setState({showIndicator: true});
     } else {
       this.setState({showIndicator: false});
@@ -110,6 +111,7 @@ class Lecture extends Component {
           courseId: this.state.newCourse,
           PersonDetails: params.PersonDetails,
           newsCourse: this.state.selectedCourseText,
+          courses: this.state.courses
         });
       })
       .catch((err) => {
@@ -140,7 +142,7 @@ class Lecture extends Component {
 
   courseList = () => {
     if (this.state.courses == '') {
-      return <Picker.Item label={`select course`} />;
+      return <Picker.Item label={`Select Course`} />;
     } else {
       return this.state.courses.map((y, z) => {
         return (
@@ -173,8 +175,8 @@ class Lecture extends Component {
   render() {
     return (
       <DrawerLayoutAndroid
-        drawerWidth={300}
-        drawerPosition="left"
+      drawerWidth={260}
+      drawerPosition="left"
         renderNavigationView={() => (
           <Menu
             navigation={this.props.navigation}
@@ -201,10 +203,15 @@ class Lecture extends Component {
         <View style={styles.container}>
           <View style={styles.container1}>
             <View style={styles.noteContainer}>
-              <MaterialIcon
-                style={{fontSize: 70, color: '#FAB005', alignSelf: 'center'}}
-                name="library-books"
-              />
+            <Image
+                 source={require("../../assets/lecture-notes.png")}
+                 style={{
+                  width: 80,
+                  height:70,
+                  alignSelf: 'center',
+                  marginTop: 25,
+                }}
+                  />
               <Text
                 style={{
                   textAlign: 'center',
@@ -304,6 +311,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#17732B',
     height: 52,
+    elevation: 10
   },
 
   headerWrapper1: {
@@ -339,6 +347,7 @@ const styles = StyleSheet.create({
   },
   noteContainer1: {
     borderWidth: 0.5,
+    borderColor: "green",
     backgroundColor: 'green',
     width: 210,
     alignSelf: 'center',

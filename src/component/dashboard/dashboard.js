@@ -6,6 +6,7 @@ import {
   Image,
   TouchableNativeFeedback,
   DrawerLayoutAndroid,
+  ImageBackground
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontawesome from 'react-native-vector-icons/FontAwesome5';
@@ -50,8 +51,8 @@ class Dashboard extends Component {
     const params = state.params || {};
 
     return (
-      <DrawerLayoutAndroid
-        drawerWidth={300}
+          <DrawerLayoutAndroid
+        drawerWidth={260}
         drawerPosition="left"
         renderNavigationView={() => (
           <Menu
@@ -116,97 +117,143 @@ class Dashboard extends Component {
                   });
                 }}>
                 <View style={styles.noteContainer}>
-                  <MaterialIcon
+                  {/* <MaterialIcon
                     style={{
                       fontSize: 70,
-                      color: '#FAB005',
+                      color: '#CA9818',
                       alignSelf: 'center',
                       marginTop: 25,
                     }}
                     name="library-books"
+                  /> */}
+                  <Image
+                 source={require("../../assets/lecture-notes.png")}
+                 style={{
+                  width: 80,
+                  height:70,
+                  alignSelf: 'center',
+                  marginTop: 25,
+                }}
                   />
                   <Text
                     style={{
                       textAlign: 'center',
-                      marginTop: 15,
+                      paddingTop: 35,
                       fontSize: 20,
                       fontFamily: 'sans-serif-condensed',
-                      color: 'green',
+                      color: 'black',
                     }}>
                     Lecture Notes
                   </Text>
                 </View>
               </TouchableNativeFeedback>
             )}
-
-            <View style={styles.noteContainer}>
-              <MaterialIcon
+             
+             <TouchableNativeFeedback
+                  onPress={() => {
+                    this.props.navigation.navigate('GetAssignment', {
+                      PersonDetails: params.PersonDetails,
+                    });
+                  }}
+             >
+             <View style={styles.noteContainer}>
+              {/* <MaterialIcon
                 name="assignment"
                 style={{
                   fontSize: 70,
-                  color: '#FAB005',
+                  color: '#CA9818',
                   alignSelf: 'center',
                   marginTop: 25,
                 }}
-              />
+              /> */}
+                  <Image
+                 source={require("../../assets/assignment.png")}
+                 style={{
+                  width: 90,
+                  height:80,
+                  alignSelf: 'center',
+                  marginTop: 25,
+                }}
+                  />
               <Text
                 style={{
                   textAlign: 'center',
-                  marginTop: 15,
+                  paddingTop: 25,
                   fontSize: 20,
                   fontFamily: 'sans-serif-condensed',
-                  color: 'green',
+                  color: 'black',
                 }}>
                 Quiz/Assignments
               </Text>
             </View>
+                </TouchableNativeFeedback>
+           
 
             <View style={styles.noteContainer}>
-              <MaterialIcon
+              {/* <MaterialIcon
                 name="desktop-mac"
                 style={{
                   fontSize: 70,
-                  color: '#FAB005',
+                  color: '#CA9818',
                   alignSelf: 'center',
                   marginTop: 25,
                 }}
-              />
+              /> */}
+                  <Image
+                 source={require("../../assets/cbt.png")}
+                 style={{
+                  width: 80,
+                  height:85,
+                  alignSelf: 'center',
+                  marginTop: 20,
+                }}
+                  />
               <Text
                 style={{
                   textAlign: 'center',
-                  marginTop: 15,
+                  paddingTop: 35,
                   fontSize: 20,
                   fontFamily: 'sans-serif-condensed',
-                  color: 'green',
+                  color: 'black',
                 }}>
                 CBT Tests
               </Text>
             </View>
 
             <View style={styles.noteContainer}>
-              <MaterialIcon
+              {/* <MaterialIcon
                 name="question-answer"
                 style={{
                   fontSize: 70,
-                  color: '#FAB005',
+                  color: '#CA9818',
                   alignSelf: 'center',
                   marginTop: 25,
                 }}
-              />
+              /> */}
+                <Image
+                 source={require("../../assets/chat-box.jpg")}
+                 style={{
+                  width: 80,
+                  height:80,
+                  alignSelf: 'center',
+                  marginTop: 25,
+                }}
+                  />
               <Text
                 style={{
                   textAlign: 'center',
-                  marginTop: 15,
+                  paddingTop: 35,
                   fontSize: 20,
                   fontFamily: 'sans-serif-condensed',
-                  color: 'green',
+                  color: 'black',
                 }}>
-                Study Past Question
+                Chat Room
               </Text>
             </View>
           </View>
         </View>
       </DrawerLayoutAndroid>
+      
     );
   }
 }
@@ -220,6 +267,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#17732B',
     height: 52,
+    elevation:10
   },
 
   headerWrapper1: {
@@ -238,25 +286,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     flexWrap: 'wrap',
     margin: 7,
-    borderColor: 'green',
-    backgroundColor: 'white',
-    borderRadius: 5,
-    elevation: 10,
-    borderBottomWidth: 3,
-    borderRightWidth: 3,
-    height: '88%',
+    // borderColor: 'green',
+    // backgroundColor: 'white',
+    // borderRadius: 5,
+    // elevation: 10,
+    // borderBottomWidth: 3,
+    // borderRightWidth: 3,
+    // height: '88%',
   },
   noteContainer: {
-    width: '48%',
-    height: '47%',
-    marginTop: 10,
+    width: '45%',
+    height: '55%',
+    marginTop: "10%",
     // borderWidth: 1,
     borderColor: '#E5E5E5',
     backgroundColor: 'white',
     borderRadius: 5,
-    elevation: 1,
-    borderBottomWidth: 3,
-    borderRightWidth: 3,
+    elevation: 9,
+    borderBottomWidth: 2,
+    // borderRightWidth: 3,
     paddingTop: 10,
   },
 });

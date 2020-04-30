@@ -30,6 +30,7 @@ class CourseContent extends Component {
       courseId: '',
       courseContent: '',
       showIndicator: false,
+      confirmedArray: []
     };
   }
 
@@ -85,14 +86,19 @@ class CourseContent extends Component {
             Id: newData.Id,
             Url: newData.Url,
             VideoUrl: newData.VideoUrl,
+            StartTime: newData.StartTime,
+            StopTime: newData.StopTime,
+            LiveStream: newData.LiveStreamingLink
             // YoutubeVideoUrl: youtubeId,
           };
         });
 
-        this.setState({showIndicator: false});
+        this.setState({
+          confirmedArray: newArray,
+          showIndicator: false});
         newArray == ''
           ? Alert.alert('there is no content for this topic')
-          : console.log(newArray, ':SSSSSS');
+          : console.log(Data, ':SSSSSS');
 
         const {state, setParams, navigate} = this.props.navigation;
         const params = state.params || {};
@@ -100,6 +106,8 @@ class CourseContent extends Component {
           newArray: newArray,
           courseContent: this.state.courseContent,
           newsCourse: params.newsCourse,
+          courses:params.courses,
+          PersonDetails: params.PersonDetails
         });
       })
       .catch((err) => {
@@ -110,10 +118,12 @@ class CourseContent extends Component {
   render() {
     const {state, setParams, navigate} = this.props.navigation;
     const params = state.params || {};
+    console.log(this.state.confirmedArray, ":WERRCRCFJVFYJFG")
+    
     return (
       <DrawerLayoutAndroid
-        drawerWidth={300}
-        drawerPosition="left"
+      drawerWidth={260}
+      drawerPosition="left"
         renderNavigationView={() => (
           <Menu
             navigation={this.props.navigation}
@@ -250,6 +260,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#17732B',
     height: 52,
+    elevation: 10
   },
 
   headerWrapper1: {
