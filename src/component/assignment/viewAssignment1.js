@@ -3,20 +3,17 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableHighlight,
+  TouchableWithoutFeedback,
   ScrollView,
   Image,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
-  TouchableNativeFeedback,
   Linking,
   DrawerLayoutAndroid
 } from 'react-native';
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 import Menu from "../drawer/menu"
-// import { TouchableHighlight } from "react-native-gesture-handler"
+// import { TouchableWithoutFeedback } from "react-native-gesture-handler"
 
-class ViewAssignment extends Component {
+class ViewAssignment1 extends Component {
 static navigationOptions = {
   headerShown: false
 }
@@ -65,8 +62,8 @@ static navigationOptions = {
      
     this.formatFullDate()
   }
-
-
+ 
+  
   alert = (item) => {
     alert(item);
   };
@@ -99,14 +96,13 @@ static navigationOptions = {
     const {state, setParams, navigate} = this.props.navigation;
     const params = state.params || {};
     console.log(params, ':THIS PARAMS');
-    const url = params.finds.Url;
+    const url = params.finds.SubmittedAssignmentUrl;
     const mainUrl = `${API_ROOT}${url.substring(2, url.length)}`;
     console.log(mainUrl);
 
     const dt = new Date(this.state.date);
     const yeah = dt.toDateString()
     console.log(yeah)
-
 
     return (
       <DrawerLayoutAndroid
@@ -124,15 +120,15 @@ static navigationOptions = {
       <ScrollView>
                      <View style={styles.headerWrapper}>
         <View style={styles.headerWrapper1}>
-          <TouchableNativeFeedback
+          <TouchableWithoutFeedback
             onPress={() => {
-              this.props.navigation.navigate('GetAssignment');
+              this.props.navigation.navigate('SubmittedAssignment');
             }}>
             <MaterialIcons
               name="arrow-back"
               style={{color: 'white', fontSize: 27, marginLeft: 15}}
             />
-          </TouchableNativeFeedback>
+          </TouchableWithoutFeedback>
           <Text style={{fontSize: 22, color: 'white', marginLeft: 20}}>
             Back
           </Text>
@@ -146,13 +142,13 @@ static navigationOptions = {
           />
           <View>
           <Text style={{fontWeight: "bold", marginBottom: 5, color: "black"}}>{params.finds.CourseCode}- {params.finds.CourseName}</Text>
-          <Text style={{fontFamily:"sans-serif-light", fontSize:13, width:"75%", color: "black"}}>{params.finds.Assignment.toUpperCase()}</Text>
+          <Text style={{marginRight:45, color: "black"}}>{params.finds.Assignment.toUpperCase()}</Text>
           <View style={{flexDirection: "row"}}>
                     <Image
-                    source={require("../../assets/schedule.png")}
-                    style={{marginRight: 5}}
+                    source={require("../../assets/cancelSchedule.png")}
+                    style={{marginRight: 5, marginTop:3}}
                     />
-                  <Text style={{fontFamily:"sans-serif-light", color: "black"}}>{this.state.newDate}</Text>
+                  <Text style={{color: "black"}}>Submitted</Text>
 
                   </View>
           </View>
@@ -160,41 +156,31 @@ static navigationOptions = {
             
           </View>
            <View style={{marginLeft:15, marginRight: 15}}>
-             <View style={{flexDirection: "row", borderWidth: 0.5, height: 60, padding: 5, borderColor: "gray"}}>
-             <Image source={require("../../assets/instruction.png")}/>
-           <Text style={{marginLeft:5,width:"90%", textTransform:"capitalize", color: "black"}}>
-            {params.finds.instruction1}
+             <View >
+             {/* <Image source={require("../../assets/instruction.png")}/> */}
+           <Text style={{marginLeft:5, textTransform:"capitalize", alignSelf: "center", color: "green"}}>
+            Assignment Submission Preview
           </Text>
              </View>
          
-          <Text style={{borderWidth: 0.5, height: 350, marginTop: 10, padding:5, textTransform: "capitalize", color: "black" }}>
-            {params.finds.Text}
+          <Text style={{borderWidth: 0.5, height: 350, marginTop: 10, padding:5, textTransform:"capitalize", color: "black"}}>
+            {params.finds.SubmittedAssignmentText}
           </Text>
            </View>
        
           <View style={{flexDirection: "row", justifyContent: "space-between", margin:16}}>
-            <TouchableOpacity
+          <TouchableWithoutFeedback
               onPress={() => {
                 Linking.openURL(mainUrl), console.log(mainUrl);
               }}>
-              <Text style={styles.itemlink}>View PDF</Text>
-            </TouchableOpacity>
+            <Text style={styles.itemlink}>View Submitted PDF</Text>
 
-        <TouchableHighlight
-          onPress={() => {
-            // this.remapp(item.Id);
-            this.props.navigation.navigate('SubmitAssignment', {
-              PersonDetails: params.PersonDetails,
-              CourseId: params.finds,
-            });
-          }}>
-          <Text style={styles.itemlink}>Submit Assignment</Text>
-        </TouchableHighlight>
+            </TouchableWithoutFeedback>
           </View>
         </View>
 
       </ScrollView>
-    </DrawerLayoutAndroid>
+      </DrawerLayoutAndroid>
     );
   }
 }
@@ -218,11 +204,12 @@ const styles = StyleSheet.create({
     borderWidth:1,
     width: 121,
   textAlign: "center",
-  color: "white",
+  color: "black",
   backgroundColor: "green",
   height: 25,
   borderColor: "green",
-  paddingTop: 3
+  paddingTop: 3,
+  color: "white"
   },
   headerWrapper: {
     display: 'flex',
@@ -240,4 +227,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ViewAssignment;
+export default ViewAssignment1;

@@ -14,7 +14,7 @@ import {
   DrawerLayoutAndroid,
   Linking,
   Alert,
-  Image
+  Image,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
 import Unorderedlist from 'react-native-unordered-list';
@@ -22,6 +22,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 import Menu from '../drawer/menu';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 // import {Item} from 'native-base';
 
 const LectureNotes = (props) => {
@@ -60,6 +61,7 @@ const LectureNotes = (props) => {
               fontSize: 18,
               fontWeight: 'bold',
               margin: 10,
+              color: "black"
             }}>
             Course: {params.newsCourse}
           </Text>
@@ -73,7 +75,7 @@ const LectureNotes = (props) => {
               fontFamily: 'sans-serif-thin',
               color: 'green',
             }}>
-            Topic: {params.courseContent} (Lecture Notes)
+            Topic: {params.courseContent.toUpperCase()} (Lecture Notes)
           </Text>
           <View
             style={{
@@ -101,42 +103,53 @@ const LectureNotes = (props) => {
                     // {title: 'Videos', data: [items.VideoUrl]},
                   ]}
                   renderItem={({item}) => (
-                    <View style={styles.container1}>
-                      <View style={styles.fileName}>
-                        {/* <Text>{items.Url.substring([20], items.Url.length).split(".")[0]}</Text> */}
+                    <View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        // Linking.openURL(item), console.log(item);
+                        items.Url &&
+                        typeof items.Url !== 'undefined'
+                          ? Linking.openURL(item)
+                          : Alert.alert(
+                              'There is no note to download',
+                            );
+                      }}>
+                      <View style={styles.container1}>
+                         <View style={{flexDirection: "row"}}>
+                         <View>
+                            <Image
+                              source={require('../../assets/notebook.png')}
+                              style={{
+                                width: 25,
+                                height: 20,
+                                alignSelf: 'center',
+                                marginTop: 10,
+                                marginRight: 5,
+                              }}
+                            />
+                          </View>
 
-                        <View>
-                        <Image
-                 source={require("../../assets/notebook.png")}
-                 style={{
-                  width: 25,
-                  height:20,
-                  alignSelf: 'center',
-                  marginTop: 10,
-                  marginRight: 5
-                }}
-                  />
-                        </View>
-                        <View>
+                          <View>
                           <Text
                             style={{
                               fontFamily: 'sans-serif-light',
                               fontSize: 15,
-                              paddingTop:10
+                              paddingTop: 10,
+                              color: "black"
                             }}>
-                           Lecture Note  {index + 1}
+                            LECTURE NOTE {index + 1}
                           </Text>
-                        </View>
+                          </View>
+                         </View>
+                         <View>
+                                <MaterialIcons name="get-app" style={{fontSize:20,marginTop: 9}} />
+                              </View>
+                        
                       </View>
-
-                      <View>
-                        <TouchableOpacity
-                          onPress={() => {
-                            Linking.openURL(item), console.log(item);
-                          }}>
-                          <Text style={styles.itemlink}>Download</Text>
-                        </TouchableOpacity>
-                      </View>
+                    </TouchableOpacity>
+                    <View
+                           style={{borderWidth: 0.5, borderColor:"#ECECEC", marginTop:5, width:"97%"}}
+                          />
                     </View>
                   )}
                   // renderSectionHeader={({section}) => (
@@ -149,7 +162,6 @@ const LectureNotes = (props) => {
           })}
         </View>
       </View>
-
       <View style={{height: 300}}></View>
     </KeyboardAvoidingView>
   );
@@ -200,8 +212,8 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginLeft: 10,
-    marginRight: 10,
+    marginLeft: 5,
+    marginRight: 5,
     marginBottom: 10,
   },
 

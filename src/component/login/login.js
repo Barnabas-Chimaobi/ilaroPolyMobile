@@ -55,6 +55,11 @@ export default class StudentLogin extends Component {
     } else {
       this.setState({showIndicator: false});
     }
+    setTimeout(()=>{
+      this.setState({
+        showIndicator: false
+      })
+    },25000)
   };
   //  resetLoader = () => {
   //    if(this.state.newArrayField !== ""){
@@ -72,15 +77,19 @@ export default class StudentLogin extends Component {
       )
         .then((data) => data.json())
         .then((newData) => {
+        //  console.log("NEW DATA: ", newData);
+         if(newData.OutPut){
           this.setState((prevState) => ({
             newArrayField: prevState.newArrayField.concat(newData),
           }));
-
+          
           const mappedArray = this.state.newArrayField.map((item) => {
+            // console.log("ITEM: ", item);
             return {
               FullName: item.OutPut.FullName,
             };
-          });
+            
+          },);
 
           const API_ROOT = 'https://applications.federalpolyilaro.edu.ng';
           const {
@@ -89,8 +98,14 @@ export default class StudentLogin extends Component {
             LastName,
             OtherName,
             ImageFileUrl,
-          } = newData.OutPut.ApplicationForm.Person;
-          const {MatricNumber} = newData.OutPut;
+          } = newData.OutPut.Student.ApplicationForm.Person;
+          const MatricNumber = newData.OutPut.Student.MatricNumber;
+          const Levels = newData.OutPut.Level.Name;
+          const Department = newData.OutPut.Department.Name;
+          const Faculty = newData.OutPut.Department.Faculty.Name;
+          const Session = newData.OutPut.Session.Name;
+
+
 
           const PersonDetails = {
             Id,
@@ -100,6 +115,10 @@ export default class StudentLogin extends Component {
             FullName: `${FirstName} ${LastName} ${OtherName}`,
             ImageFileUrl: `${API_ROOT}${ImageFileUrl}`,
             MatricNumber,
+            Levels,
+            Department,
+            Faculty,
+            Session
           };
           this.setState({showIndicator: false});
 
@@ -111,12 +130,18 @@ export default class StudentLogin extends Component {
           });
           this.setState({regno: ''});
           this.setState({password: ''});
+         }
+         else {
+          Alert.alert("Incorrect User details");
+          this.setState({showIndicator: false});
+          return;
+         }
         })
         .catch((err) => {
-          console.log(err, 'there was an error');
+          console.error(err, 'there was an error');
         });
     } else {
-      Alert.alert('please fill complete log in details');
+      Alert.alert('please fill complete log in details', );
     }
   };
 
@@ -181,9 +206,10 @@ export default class StudentLogin extends Component {
                   placeholder="Password"
                   clearTextOnFocus={true}
                   secureTextEntry={this.state.showPassword}
+                  // placeholderTextColor={"red"}
                 />
                   <Icon
-                   style={{color: "gray", fontSize:23, marginTop:15}}
+                   style={{color: "gray", fontSize:20, marginTop:15}}
                     name={this.state.icon}
                     onPress={() => {
                       this.changeIcon();

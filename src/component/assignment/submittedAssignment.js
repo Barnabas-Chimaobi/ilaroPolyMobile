@@ -10,11 +10,15 @@ import {
   TouchableNativeFeedback,
   Button,
   Alert,
+  DrawerLayoutAndroid,
 } from 'react-native';
 import {Icon} from 'native-base';
 import Modal from 'react-native-modal';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Spinner from 'react-native-loading-spinner-overlay';
+
+import Menu from '../drawer/menu';
 
 // import { TouchableHighlight } from "react-native-gesture-handler"
 
@@ -29,44 +33,24 @@ class GetAssignment extends Component {
       activeState2: false,
       activeState3: false,
       activeState4: false,
+      // showIndicator: true,
     };
   }
 
   static navigationOptions = {
-    headerShown: false
-  }
+    headerShown: false,
+  };
 
   componentDidMount() {
     const {state, setParams, navigate} = this.props.navigation;
     const params = state.params || {};
 
-    fetch(
-      `http://applications.federalpolyilaro.edu.ng/api/e_learning/AssignmentByCategory?personId=${params.PersonDetails.Id}`,
-    )
-      .then((response) => response.json())
-      .then((Data) => {
-        const assignmentArray = Data.Output.SubmittedAssignment.map(
-          (res) => {
-            return {
-              Id: res.Id,
-              Assignment: res.Assignment,
-              URL: res.URL,
-              Instructions: res.Instructions,
-              DateSet: res.DateSet,
-              DueDate: res.DueDate,
-              AssignmentinText: res.AssignmentinText,
-            };
-          },
-        );
-        this.setState({
-          CourseId: assignmentArray,
-        });
-        console.log(assignmentArray, ':DDDDDDDDDDDD');
-        console.log(params);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const submitteds = params.submitted;
+
+    this.setState({
+      CourseId: submitteds,
+      // showIndicator: false
+    });
   }
 
   remapp = (assignmentId) => {
@@ -74,201 +58,330 @@ class GetAssignment extends Component {
     const newObject = this.state.CourseId.map((item) => {
       return {
         Id: item.Id,
-        instruction1: item.Instructions,
-        Text: item.AssignmentinText,
         Url: item.URL,
+        CourseCode: item.CourseCode,
+        CourseName: item.CourseName,
+        DateSet: item.DateSet,
+        DueDate: item.DueDate,
+        Assignment: item.Assignment,
+        SubmittedAssignmentUrl: item.SubmittedAssignmentUrl,
+        SubmittedAssignmentText: item.SubmittedAssignmentText,
+        SubmittedAssignmentScore: item.SubmittedAssignmentScore,
       };
     });
 
-    this.setState({modalVisible:false})
+    const {state, setParams, navigate} = this.props.navigation;
+    const params = state.params || {};
+
+    this.setState({modalVisible: false});
 
     const selectedAsignment = newObject.find((as) => as.Id === assignmentId);
 
     console.log(selectedAsignment, ':ASDDDDDDD');
-    this.props.navigation.navigate('ViewAssignment', {
+
+    this.props.navigation.navigate('ViewAssignment1', {
       finds: selectedAsignment,
+      PersonDetails: params.PersonDetails,
     });
   };
 
-  render() {
-    const activeStyle = {
-      // borderTopWidth: 5,
-      // borderTopColor: "green",
-      // // borderTopColor: 'green',
-      // paddingTop: -15,
-      // flexDirection: 'row',
-    };
-    const activePosition = {
-      position: 'absolute',
-      top: 27,
-      // backgroundColor: 'green',
-      borderBottomColor: "green",
-      borderBottomWidth: 5,
-      // borderRadius: 50,
-      width: 135,
-      height: 5,
-      alignSelf: 'center',
-    };
-    return (
-      <View style={{flex: 1}}>
-      <View style={styles.headerWrapper}>
-      <View style={styles.headerWrapper1}>
-        <TouchableNativeFeedback
+  renderBtnConditionally(item) {
+    const {state, setParams, navigate} = this.props.navigation;
+    const params = state.params || {};
+    return this.state.modalVisible ? (
+      <View
+        style={{
+          height: 40,
+          width: 120,
+          borderWidth: 0.5,
+          backgroundColor: 'white',
+          borderColor: 'gray',
+          marginLeft: -95,
+          paddingTop: 10,
+          marginTop: -40,
+          elevation: 5,
+          paddingLeft: 5,
+        }}>
+        <TouchableWithoutFeedback
           onPress={() => {
-            props.navigation.navigate('GetAssignment');
+            this.remapp(item.Id);
           }}>
-          <MaterialIcons
-            name="arrow-back"
-            style={{color: 'white', fontSize: 27, marginLeft: 15}}
-          />
-        </TouchableNativeFeedback>
-        <Text style={{fontSize: 22, color: 'white', marginLeft: 20}}>
-          Back
-        </Text>
+          <Text style={{color: 'green'}}>Preview Submission</Text>
+        </TouchableWithoutFeedback>
       </View>
-    </View>
-    <View style={styles.footer}>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              return (
-                // this.setState({
-                //   activeState1: true,
-                //   activeState2: false,
-                //   activeState3: false,
-                //   activeState4: false
-                // }),
-                this.props.navigation.navigate('GetAssignment')
-              );
-            }}>
-            <View
-              style={
-                // this.state.activeState1 &&
-                this.props.navigation.state.routeName === 'GetAssignment'
-                  ? activeStyle
-                  : ''
-              }>
+    ) : null;
+  }
+
+  alert = (item) => {
+    alert(item);
+  };
+  openDrawer = () => {
+    this.drawer.openDrawer();
+  };
+
+  closeDrawer = () => {
+    this.drawer.closeDrawer();
+  };
+
+  onButtonPress = () => {
+    if (this.state.newSemester) {
+      this.setState({showIndicator: true});
+    } else {
+      this.setState({showIndicator: false});
+    }
+    setTimeout(() => {
+      this.setState({showIndicator: false});
+    }, 15000);
+  };
+
+  render() {
+    // const activeStyle = {
+    //   // borderTopWidth: 5,
+    //   // borderTopColor: "green",
+    //   // // borderTopColor: 'green',
+    //   // paddingTop: -15,
+    //   // flexDirection: 'row',
+    // };
+    // const activePosition = {
+    //   position: 'absolute',
+    //   top: 27,
+    //   // backgroundColor: 'green',
+    //   borderBottomColor: 'green',
+    //   borderBottomWidth: 5,
+    //   // borderRadius: 50,
+    //   width: 135,
+    //   height: 5,
+    //   alignSelf: 'center',
+    // };
+    return (
+      <DrawerLayoutAndroid
+        drawerWidth={260}
+        drawerPosition="left"
+        renderNavigationView={() => (
+          <Menu
+            navigation={this.props.navigation}
+            closeDrawer={this.closeDrawer}
+          />
+        )}
+        ref={(_drawer) => {
+          this.drawer = _drawer;
+        }}>
+        <View style={{flex: 1}}>
+          <View style={styles.headerWrapper}>
+            <View style={styles.headerWrapper1}>
+              <TouchableNativeFeedback
+                onPress={() => {
+                  this.props.navigation.navigate('GetAssignment');
+                }}>
+                <MaterialIcons
+                  name="arrow-back"
+                  style={{color: 'white', fontSize: 27, marginLeft: 15}}
+                />
+              </TouchableNativeFeedback>
+              <Text style={{fontSize: 22, color: 'white', marginLeft: 20}}>
+                Back
+              </Text>
+            </View>
+          </View>
+          <View style={styles.footer}>
+            <TouchableWithoutFeedback
+              onPress={() => {
+                return (
+                  // this.setState({
+                  //   activeState1: true,
+                  //   activeState2: false,
+                  //   activeState3: false,
+                  //   activeState4: false
+                  // }),
+                  this.props.navigation.navigate('GetAssignment')
+                );
+              }}>
               <View
                 style={
+                  // this.state.activeState1 &&
                   this.props.navigation.state.routeName === 'GetAssignment'
-                    ? //  &&
-                      // this.state.activeState1
-                      activePosition
-                    : ''
-                }></View>
-              <Text style={styles.text}>Pending Assignment</Text>
-            </View>
-          </TouchableWithoutFeedback>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              // this.setState({
-              //   activeState2: true,
-              //   activeState1: false,
-              //   activeState3: false,
-              //   activeState4: false
-              // });
-              this.props.navigation.navigate('SubmittedAssignment');
-            }}>
-            <View
-              style={
-                // this.state.activeState2
-                this.props.navigation.state.routeName === 'SubmittedAssignment' &&
-                activeStyle
-              }>
+                }>
+                <View
+                  style={
+                    this.props.navigation.state.routeName === 'GetAssignment'
+                  }></View>
+                <Text style={styles.text}>Pending Assignment</Text>
+              </View>
+            </TouchableWithoutFeedback>
+            <Spinner
+              color={'green'}
+              //visibility of Overlay Loading Spinner
+              visible={this.state.showIndicator}
+              //Text with the Spinner
+              textContent={'Loading...'}
+              //Text style of the Spinner Text
+              textStyle={styles.spinnerTextStyle}
+            />
+            <TouchableWithoutFeedback
+              onPress={() => {
+                // this.setState({
+                //   activeState2: true,
+                //   activeState1: false,
+                //   activeState3: false,
+                //   activeState4: false
+                // });
+                this.props.navigation.navigate('SubmittedAssignment');
+              }}>
               <View
                 style={
                   // this.state.activeState2
-                  this.props.navigation.state.routeName === 'SubmittedAssignment' &&
-                  activePosition
-                }></View>
-              <Text style={styles.text1}> Submitted Assignment</Text>
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-      <ScrollView>
-   
-        <Text style={{margin:10, fontSize: 15}}>* Submitted Assignment</Text>
-        <View>
-          {this.state.CourseId.map((item, index) => {
-                      const dt = new Date(item.DueDate);
-                      const yeah = dt.toDateString()
-      
-                      const dts = new Date(item.DueDate);
-                      var hours = dts.getHours() - 1;
-                      var minutes = dts.getMinutes();
-                      var ampm = hours >= 12 ? 'pm' : 'am';
-                      hours = hours % 12;
-                      hours = hours ? hours : 12; // the hour '0' should be '12'
-                      minutes = minutes < 10 ? '0'+minutes : minutes;
-                      var strTime = hours + ':' + minutes + ' ' + ampm;
-                      let trueTime = `${yeah} ${strTime}`
+                  this.props.navigation.state.routeName ===
+                  'SubmittedAssignment'
+                }>
+                <View
+                  style={
+                    // this.state.activeState2
+                    this.props.navigation.state.routeName ===
+                    'SubmittedAssignment'
+                  }></View>
+                <Text style={styles.text1}> Submitted Assignment</Text>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+          <ScrollView>
+            {/* <Text style={{margin: 10, fontSize: 15, color: "black"}}>* Submitted Assignment</Text> */}
+            <View>
+              {this.state.CourseId.map((item, index) => {
+                const dt = new Date(item.DueDate);
+                const yeah = dt.toDateString();
 
-            return (
-              <View style={{flexDirection: 'row'}}>
-                <Image
-                  source={require('../../assets/fine-books.png')}
-                  style={{margin: 8}}
-                />
+                const dts = new Date(item.DueDate);
+                var hours = dts.getHours() - 1;
+                var minutes = dts.getMinutes();
+                var ampm = hours >= 12 ? 'pm' : 'am';
+                hours = hours % 12;
+                hours = hours ? hours : 12; // the hour '0' should be '12'
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                var strTime = hours + ':' + minutes + ' ' + ampm;
+                let trueTime = `${yeah} ${strTime}`;
 
-                <View style={{marginTop:15}}>
-                  <Text style={{width:270}}>{item.Assignment}</Text>
-                  {/* <Text>{item.DateSet}</Text> */}
-                  <View style={{flexDirection: "row"}}>
-                    <Image
-                    source={require("../../assets/schedule.png")}
-                    style={{marginRight: 5}}
-                    />
-                  <Text>{trueTime}</Text>
+                return (
+                  <TouchableWithoutFeedback
+                    onPress={() => {
+                      this.setState({
+                        modalVisible: false,
+                      });
+                    }}>
+                    <View>
+                      <View key={index}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                          }}>
+                          <TouchableWithoutFeedback
+                            onPress={() => {
+                              this.remapp(item.Id);
+                            }}>
+                            <View style={{flexDirection: 'row'}}>
+                              <Image
+                                source={require('../../assets/fine-books.png')}
+                                style={{
+                                  margin: 8,
+                                  marginTop: 25,
+                                  width: 45,
+                                  height: 45,
+                                }}
+                              />
 
-                  </View>
-                  
-                  <View
-                    style={{
-                      borderBottomWidth: 0.5,
-                      borderBottomColor: 'gray',
-                      width: "100%",
-                      marginBottom: 5,
-                      marginTop: 35,
-                    }}
-                  />
-                </View>
-                <View >
-                {!this.state.modalVisible ? (
-                      <TouchableHighlight
+                              <View style={{marginTop: 15}}>
+                                <Text
+                                  style={{
+                                    fontWeight: 'bold',
+                                    width: '98%',
+                                    marginBottom: 3,
+                                    color: 'black',
+                                  }}>
+                                  {item.CourseCode}- {item.CourseName}
+                                </Text>
+                                <Text
+                                  style={{
+                                    width: 270,
+                                    marginBottom: 3,
+                                    fontFamily: 'sans-serif-light',
+                                    fontSize: 14,
+                                    color: 'black',
+                                  }}>
+                                  {item.Assignment.toUpperCase()}
+                                </Text>
+
+                                <View
+                                  style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                  }}>
+                                  <Text style={{color: 'green'}}>
+                                    Submitted
+                                  </Text>
+                                  {item.SubmittedAssignmentScore !== '' ? (
+                                    <Text
+                                      style={{
+                                        fontFamily: 'sans-serif-light',
+                                        backgroundColor: 'orange',
+                                        height: 30,
+                                        padding: 5,
+                                        borderRadius: 5,
+                                        width: 60,
+                                        alignSelf: 'center',
+                                        paddingLeft: 15,
+                                        color: 'white',
+                                      }}>
+                                      score
+                                    </Text>
+                                  ) : null}
+                                </View>
+                              </View>
+                            </View>
+                            {/* <Text style={{color: 'green'}}>View Assignment</Text> */}
+                          </TouchableWithoutFeedback>
+
+                          {/* <View style={{marginLeft: -50}}>
+                      <TouchableWithoutFeedback
                         onPress={() => {
-                          this.setState({modalVisible: true});
+                          this.setState({
+                            currentIteration: index,
+                            modalVisible: true,
+                          });
                         }}>
                         <MaterialIcon
-                           style={{color: "gray", fontSize:18, marginTop:10}}
+                          style={{
+                            color: 'gray',
+                            fontSize: 20,
+                            marginTop: 20,
+                          }}
                           name="more-vert"
-                          //  onPress={this.toggleModal}
                         />
-                      </TouchableHighlight>
-                    ) : (
+                      </TouchableWithoutFeedback>
+
+                      {this.state.currentIteration === index
+                        ? this.renderBtnConditionally(item)
+                        : null}
+                    </View> */}
+                        </View>
+                      </View>
                       <View
                         style={{
-                          height: 50,
-                          width: 110,
-                          backgroundColor: 'blue',
-                          marginLeft:-90
-                        }}>
-                        <TouchableHighlight
-                          onPress={() => {
-                            this.remapp(item.Id);
-                          }}>
-                          <Text>View Assignment</Text>
-                        </TouchableHighlight>
-                      </View>
-                    )}
-                </View>
-                
-              </View>
-            );
-          })}
-
+                          borderBottomWidth: 0.5,
+                          borderBottomColor: 'gray',
+                          width: '83%',
+                          marginBottom: 5,
+                          marginTop: 12,
+                          marginLeft: 50,
+                        }}
+                      />
+                    </View>
+                  </TouchableWithoutFeedback>
+                );
+              })}
+            </View>
+          </ScrollView>
         </View>
-        
-      </ScrollView>
-      </View>
+      </DrawerLayoutAndroid>
     );
   }
 }
@@ -287,12 +400,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingTop: 7,
     paddingBottom: 9,
+    width: 175,
+    marginTop: 10,
+    paddingLeft: 20,
+    color: 'black',
+    backgroundColor: '#E5E5E5',
+    borderRadius: 5,
+    marginRight: -10,
   },
   text1: {
     color: 'green',
     fontSize: 14,
     paddingTop: 7,
     paddingBottom: 9,
+    // borderWidth: 1,
+    width: 175,
+    marginTop: 10,
+    paddingLeft: 10,
+    color: 'white',
+    backgroundColor: 'green',
+    borderRadius: 5,
   },
   headerWrapper: {
     display: 'flex',

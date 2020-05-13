@@ -6,20 +6,33 @@ import {
   Image,
   TouchableNativeFeedback,
   DrawerLayoutAndroid,
-  ImageBackground
+  ImageBackground,
+  TouchableWithoutFeedback,
+  ScrollView,
+  Linking,
+  Alert
+  // TouchableWithoutFeedbackBase
 } from 'react-native';
+import {Root} from 'native-base'
+import { Container, Header, Button, Content, ActionSheet} from "native-base";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontawesome from 'react-native-vector-icons/FontAwesome5';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Menu from '../drawer/menu';
 import Spinner from 'react-native-loading-spinner-overlay';
+import Footer from "../../component/support/support"
+import Call from "../../component/support/call"
+
+
+
 
 class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
       showIndicator: false,
+      clicked: null
     };
   }
 
@@ -42,13 +55,34 @@ class Dashboard extends Component {
     this.setState({showIndicator: true});
   };
 
-  componentWillUnmount() {
+  componentDidmount() {
     this.setState({showIndicator: false});
   }
+
+  makeCall = () => {
+
+    let phoneNumber = '';
+
+    if (Platform.OS === 'android') {
+      phoneNumber = 'tel:${07088391544}';
+    } else {
+      phoneNumber = 'telprompt:${1234567890}';
+    }
+
+    Linking.openURL(phoneNumber);
+  };
 
   render() {
     const {state, setParams, navigate} = this.props.navigation;
     const params = state.params || {};
+
+    var BUTTONS = [
+      { text: "Call", icon: "american-football", iconColor: "#2c8ef4",},
+      { text: "E-mail", icon: "analytics", iconColor: "#f42ced" },
+      { text: "Chat", icon: "aperture", iconColor: "#ea943b" },
+    ];
+    var DESTRUCTIVE_INDEX = 3;
+    var CANCEL_INDEX = 4;
 
     return (
           <DrawerLayoutAndroid
@@ -64,15 +98,7 @@ class Dashboard extends Component {
           this.drawer = _drawer;
         }}>
         <View style={styles.container}>
-          <View>
-            {/* {params.mappedArray.map((items, index) => {
-            return (
-              <Text>
-                {items.FullName}
-              </Text>
-            );
-          })} */}
-          </View>
+      
           <View style={styles.headerWrapper}>
             <View style={styles.headerWrapper1}>
               <TouchableNativeFeedback
@@ -86,30 +112,21 @@ class Dashboard extends Component {
                 E-Learning
               </Text>
             </View>
+            <TouchableWithoutFeedback
+             onPress={()=> {
+               Alert.alert("No new Notifications")
+             }}
+            >
             <View style={styles.headerWrapper2}>
               <Fontawesome
                 name="bell"
                 style={{color: 'white', fontSize: 18, marginRight: 15}}
               />
             </View>
+            </TouchableWithoutFeedback>
           </View>
           <View style={styles.container1}>
-            {this.state.showIndicator ? (
-              // <View style={styles.container}>
-              //   {/*Code to show Activity Indicator*/}
-              //   <ActivityIndicator size="large" color="#0000ff" />
-              //   {/*Size can be large/ small*/}
-              // </View>:
-              <Spinner
-                color={'green'}
-                //visibility of Overlay Loading Spinner
-                visible={this.state.showIndicator}
-                //Text with the Spinner
-                textContent={'Logging in...'}
-                //Text style of the Spinner Text
-                textStyle={styles.spinnerTextStyle}
-              />
-            ) : (
+
               <TouchableNativeFeedback
                 onPress={() => {
                   this.props.navigation.navigate('Lecture', {
@@ -117,15 +134,7 @@ class Dashboard extends Component {
                   });
                 }}>
                 <View style={styles.noteContainer}>
-                  {/* <MaterialIcon
-                    style={{
-                      fontSize: 70,
-                      color: '#CA9818',
-                      alignSelf: 'center',
-                      marginTop: 25,
-                    }}
-                    name="library-books"
-                  /> */}
+     
                   <Image
                  source={require("../../assets/lecture-notes.png")}
                  style={{
@@ -147,7 +156,7 @@ class Dashboard extends Component {
                   </Text>
                 </View>
               </TouchableNativeFeedback>
-            )}
+            
              
              <TouchableNativeFeedback
                   onPress={() => {
@@ -157,15 +166,7 @@ class Dashboard extends Component {
                   }}
              >
              <View style={styles.noteContainer}>
-              {/* <MaterialIcon
-                name="assignment"
-                style={{
-                  fontSize: 70,
-                  color: '#CA9818',
-                  alignSelf: 'center',
-                  marginTop: 25,
-                }}
-              /> */}
+      
                   <Image
                  source={require("../../assets/assignment.png")}
                  style={{
@@ -190,16 +191,13 @@ class Dashboard extends Component {
            
 
             <View style={styles.noteContainer}>
-              {/* <MaterialIcon
-                name="desktop-mac"
-                style={{
-                  fontSize: 70,
-                  color: '#CA9818',
-                  alignSelf: 'center',
-                  marginTop: 25,
-                }}
-              /> */}
-                  <Image
+
+                   <TouchableWithoutFeedback
+                    onPress={() => {
+                      this.props.navigation.navigate("Cbt")
+                    }}
+                   >
+                   <Image
                  source={require("../../assets/cbt.png")}
                  style={{
                   width: 80,
@@ -208,6 +206,7 @@ class Dashboard extends Component {
                   marginTop: 20,
                 }}
                   />
+                </TouchableWithoutFeedback>
               <Text
                 style={{
                   textAlign: 'center',
@@ -221,15 +220,11 @@ class Dashboard extends Component {
             </View>
 
             <View style={styles.noteContainer}>
-              {/* <MaterialIcon
-                name="question-answer"
-                style={{
-                  fontSize: 70,
-                  color: '#CA9818',
-                  alignSelf: 'center',
-                  marginTop: 25,
-                }}
-              /> */}
+      
+              <TouchableWithoutFeedback onPress={()=> {
+                this.props.navigation.navigate("EnterChat", {PersonDetails: params.PersonDetails})
+              }}>
+                <View>
                 <Image
                  source={require("../../assets/chat-box.jpg")}
                  style={{
@@ -249,9 +244,31 @@ class Dashboard extends Component {
                 }}>
                 Chat Room
               </Text>
+                </View>
+             
+              </TouchableWithoutFeedback>
+                
             </View>
           </View>
         </View>
+    
+         <TouchableWithoutFeedback onPress={()=>{
+           this.makeCall()
+         }}>
+           <View style={{position: "absolute", left: "55%", right: 0, bottom: 0, height:40, flexDirection: "row", width:150}}>
+           <Text style={{ borderRadius: 5, textAlign: "center", padding: 5, marginTop: -15, marginLeft:23, color: "green"}}>Call Support</Text>
+           <View style={{ borderRadius: 80, width: 50, marginTop:-30, height: 50,}}>
+             <Image
+              source={require("../../assets/call1.jpg")}
+              style={{color: 'white', fontSize: 25, alignSelf: "center", paddingTop:5, height:50, width: 50}}
+
+             />
+           </View>
+     
+           </View>
+        
+         </TouchableWithoutFeedback>
+     
       </DrawerLayoutAndroid>
       
     );
@@ -292,12 +309,12 @@ const styles = StyleSheet.create({
     // elevation: 10,
     // borderBottomWidth: 3,
     // borderRightWidth: 3,
-    // height: '88%',
+    height: '75%',
   },
   noteContainer: {
     width: '45%',
     height: '55%',
-    marginTop: "10%",
+    marginTop: "5%",
     // borderWidth: 1,
     borderColor: '#E5E5E5',
     backgroundColor: 'white',
@@ -307,4 +324,9 @@ const styles = StyleSheet.create({
     // borderRightWidth: 3,
     paddingTop: 10,
   },
+
+  container: {
+    // height: "100%",
+    // flex: 1
+  }
 });

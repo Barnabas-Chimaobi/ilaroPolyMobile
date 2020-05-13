@@ -16,10 +16,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Menu from '../drawer/menu';
 
-class Lecture extends Component {
-  static navigationOptions = {
-    headerShown: false,
-  };
+class EnterChat extends Component {
   state = {
     showIndicator: false,
     selectedCourseText: '',
@@ -29,7 +26,6 @@ class Lecture extends Component {
     newCourse: 0,
     newSemester: '',
     contentList: [],
-    courseCode: "",
     PersonDetails: {
       Id: '',
       FirstName: null,
@@ -40,7 +36,7 @@ class Lecture extends Component {
   };
 
   onButtonPress = () => {
-    if (this.state.selectedCourseText !== "" && this.state.newSemester === this.state.newSemester) {
+    if (this.state.newSemester) {
       this.setState({showIndicator: true});
     } else {
       this.setState({showIndicator: false});
@@ -68,9 +64,14 @@ class Lecture extends Component {
     this.setState({
       PersonDetails: params.PersonDetails,
     });
+
+    //Method 2: The Async Storage Way
+    //const { Id, FirstName, OtherName, FullName, ImageFileUrl } = JSON.parse(await AsyncStorage.getItem("PersonDetails"));
   }
 
   collectCourses = (value) => {
+    const {state, setParams, navigate} = this.props.navigation;
+    const params = state.params || {};
     if (typeof value === 'number' && value > 0) {
       fetch(`https://applications.federalpolyilaro.edu.ng/api/E_Learning/RegisteredCourses?PersonId=${this.state.PersonDetails?.Id}
       &Semester=${value}`)
@@ -81,6 +82,13 @@ class Lecture extends Component {
             showIndicator: false,
           });
           console.log('ghhj:', response1);
+          this.props.navigation.navigate('CoursesForChat', {
+            // newArray: newArray,
+            courseId: this.state.newCourse,
+            PersonDetails: params.PersonDetails,
+            newsCourse: this.state.selectedCourseText,
+            courses: this.state.courses
+          });
         })
         .catch((err) => {
           console.log(err);
@@ -88,43 +96,6 @@ class Lecture extends Component {
     }
   };
 
-  viewCourseContent = () => {
-    fetch(
-      `https://applications.federalpolyilaro.edu.ng/api/E_Learning/ContentType?PersonId=${this.state.PersonDetails?.Id}&CourseId=${this.state.newCourse}`,
-    )
-      .then((data) => data.json())
-      .then((Data) => {
-        const newArray = Data.Output.map((newData) => {
-          return {
-            Id: newData.Id,
-            Name: newData.Name,
-          };
-        });
-
-        newArray == ''
-          ? Alert.alert('there is no study material for this course')
-          : console.log(newArray, ', ARRAY');
-
-        this.setState({
-          contentList: newArray,
-          showIndicator: false,
-        });
-
-        console.log(this.state.newCourse, ':NEWCOUSERjjjjj');
-        const {state, setParams, navigate} = this.props.navigation;
-        const params = state.params || {};
-        this.props.navigation.navigate('CourseContent', {
-          newArray: newArray,
-          courseId: this.state.newCourse,
-          PersonDetails: params.PersonDetails,
-          newsCourse: this.state.selectedCourseText,
-          courses: this.state.courses,
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
 
   alert = (item) => {
     alert(item);
@@ -137,32 +108,15 @@ class Lecture extends Component {
     this.drawer.closeDrawer();
   };
 
-  courseList = () => {
-    if (this.state.courses == '') {
-      return <Picker.Item label={`Select Course`} color="green"/>;
-    } else {
-      return this.state.courses.map((y, z) => {
-        if(z === 0){
-          return <Picker.Item label={`Select Course`} color="green"/>;
-        }
-        else {
-          return (
-            <Picker.Item
-              style={styles.pitem}
-              label={y.CourseName}
-              key={z}
-              value={y.CourseId}
-            />
-          );
-        }
-      });
-    }
+  static navigationOptions = {
+    headerShown: false,
   };
+
 
   semesterList = () => {
     return this.state.semesters.map((y, z) => {
       if (z === 0) {
-        return <Picker.Item label={`Select Semester`} key={z} value={y} color="green"/>;
+        return <Picker.Item label={`Select Semester`} key={z} value={y} />;
       } else {
         console.log(`SEmester: ${this.state.semesterText[z]}`);
         return (
@@ -188,9 +142,12 @@ class Lecture extends Component {
         }}>
         <View style={styles.headerWrapper}>
           <View style={styles.headerWrapper1}>
-            <TouchableNativeFeedback onPress={(this.onPress = this.openDrawer)}>
+            <TouchableNativeFeedback onPress={()=>{
+              this.props.navigation.navigate('Dashboard')
+            }}>
               <MaterialIcon
-                name="menu"
+                name="arrow-back"
+                // name="keyboard-backspace"
                 style={{color: 'white', fontSize: 27, marginLeft: 15}}
               />
             </TouchableNativeFeedback>
@@ -203,10 +160,10 @@ class Lecture extends Component {
           <View style={styles.container1}>
             <View style={styles.noteContainer}>
             <Image
-                 source={require("../../assets/lecture-notes.png")}
+                 source={require("../../assets/chat-box.jpg")}
                  style={{
-                  width: 80,
-                  height:70,
+                  width: 90,
+                  height:90,
                   alignSelf: 'center',
                   marginTop: 25,
                 }}
@@ -219,7 +176,7 @@ class Lecture extends Component {
                   marginBottom: 30,
                   color: 'green',
                 }}>
-                Lecture Notes
+                Select Semester To Proceed with Chat
               </Text>
             </View>
           </View>
@@ -227,29 +184,29 @@ class Lecture extends Component {
           <View style={styles.textInputWrapper}>
             <Spinner
               color={'green'}
+              //visibility of Overlay Loading Spinner
               visible={this.state.showIndicator}
               textContent={'Loading...'}
+              //Text with the Spinner
+              //Text style of the Spinner Text
               textStyle={styles.spinnerTextStyle}
             />
             <TextInput style={styles.textInput} />
             <Picker
-              itemStyle={{ backgroundColor: "grey", color: "blue", fontFamily:"Ebrima", fontSize:17 }}
               style={styles.picker1}
               selectedValue={this.state.newSemester}
               onValueChange={(value) => {
                 this.setState({
                   newSemester: value,
                 });
-                if(value > 0){
-                  this.onButtonPresser();
-                }
-                this.collectCourses(value);
+                // this.onButtonPresser();
+                // this.collectCourses(value);
               }}>
               {this.semesterList()}
             </Picker>
           </View>
 
-          <View style={styles.textInputWrapper}>
+          {/* <View style={styles.textInputWrapper}>
             <TextInput style={styles.textInput} />
             <Picker
               style={styles.picker2}
@@ -264,19 +221,33 @@ class Lecture extends Component {
               }}>
               {this.courseList()}
             </Picker>
-          </View>
+          </View> */}
             <Spinner
               color={'green'}
+              //visibility of Overlay Loading Spinner
               visible={this.state.showIndicator}
               textContent={'Loading...'}
+              //Text with the Spinner
+              //Text style of the Spinner Text
               textStyle={styles.spinnerTextStyle}
             />
             <View style={styles.noteContainer1}>
+            <Spinner
+              color={'green'}
+              //visibility of Overlay Loading Spinner
+              visible={this.state.showIndicator}
+              textContent={'Loading...'}
+              //Text with the Spinner
+              //Text style of the Spinner Text
+              textStyle={styles.spinnerTextStyle}
+            />
               <TouchableOpacity
                 style={styles.noteCon}
                 onPress={() => {
+                  // this.onButtonPress();
+                  // this.courseList()
+                  this.collectCourses(this.state.newSemester);
                   this.onButtonPress();
-                  this.viewCourseContent();
                   console.log('CCCCCCCCCC:', this.state.PersonDetails?.Id),
                     console.log('DDDD:', this.state.newCourse);
                 }}>
@@ -287,7 +258,7 @@ class Lecture extends Component {
                     fontSize: 20,
                     color: 'white',
                   }}>
-                  View
+                 Enter Chat
                 </Text>
               </TouchableOpacity>
             </View>
@@ -296,6 +267,8 @@ class Lecture extends Component {
     );
   }
 }
+
+export default EnterChat;
 
 const styles = StyleSheet.create({
   headerWrapper: {
@@ -317,7 +290,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   container1: {
-    marginTop: '10%',
+    marginTop: '5%',
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -337,6 +310,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderBottomWidth: 3,
     borderRightWidth: 3,
+    height: "80%"
   },
   noteContainer1: {
     borderWidth: 0.5,
@@ -365,11 +339,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     backgroundColor: 'white',
     borderColor: 'gray',
-    width: 310,
+    width: "90%",
     height: 36,
     marginTop: -4,
-    marginLeft: 10,
-    width: "90%"
+    marginLeft:10
   },
 
   textDescriprion: {
@@ -378,20 +351,6 @@ const styles = StyleSheet.create({
   textInputWrapper: {
     marginBottom: 10,
     alignSelf: 'center',
-    width: "95%"
-    
-  },
-  twoPickers: {
-    width: 200,
-    height: 88,
-    backgroundColor: '#FFF0E0',
-    borderColor: 'black',
-    borderWidth: 1,
-  },
-  twoPickerItems: {
-    height: 88,
-    color: 'red'
+    width: "90%"
   },
 });
-
-export default Lecture;

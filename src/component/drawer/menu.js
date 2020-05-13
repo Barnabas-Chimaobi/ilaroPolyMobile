@@ -6,17 +6,27 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Logout from '../logout/logout';
+
 const Menu = (props) => {
+
   const {state, setParams, navigate} = props.navigation;
   const params = state.params || {};
-  const {
-    Id,
-    FirstName,
-    OtherName,
-    FullName,
-    ImageFileUrl,
-    MatricNumber,
-  } = params.PersonDetails;
+
+  // const {
+  //   Id,
+  //   FirstName,
+  //   OtherName,
+  //   FullName,
+  //   ImageFileUrl,
+  //   MatricNumber,
+  // } = params.PersonDetails;
+
+  const Id =params.PersonDetails.Id
+  const FirstName = params.PersonDetails.FirstName
+  const FullName = params.PersonDetails.FullName
+  const ImageFileUrl = params.PersonDetails.ImageFileUrl
+  const MatricNumber = params.PersonDetails.MatricNumber
+
   let [loading, setLoading] = useState(false);
 
   const signOut = () => {
@@ -71,6 +81,7 @@ const Menu = (props) => {
             style={styles.boardText}
             onPress={() => {
               props.navigation.navigate('Dashboard');
+              // navigateToProfileFunction()
               props.closeDrawer();
             }}>
             Dashboard
@@ -96,7 +107,7 @@ const Menu = (props) => {
           />
           <Text
             onPress={() => {
-              props.navigation.navigate('Profile');
+              props.navigation.navigate('Profile', {PersonDetails: params.PersonDetails});
               props.closeDrawer();
             }}
             style={styles.boardText}>
@@ -122,39 +133,12 @@ const Menu = (props) => {
           />
           <Text
             onPress={() => {
-              props.navigation.navigate('Notifications');
+              props.navigation.navigate('News');
               props.closeDrawer();
             }}
             style={styles.boardText}>
-            Notifications
+            News/Updates
           </Text>
-        </View>
-
-        <View
-          style={{
-            borderBottomWidth: 0.25,
-            borderBottomColor: 'gray',
-            width: '80%',
-            margin: 5,
-          }}
-        />
-
-        <View style={styles.eachIcon}>
-          <MaterialIcons
-            name="comment"
-            size={20}
-            color="green"
-            style={styles.icon}
-          />
-          <Text
-            style={styles.boardText}
-            onPress={() => {
-              props.navigation.navigate('Conversation');
-              props.closeDrawer();
-            }}>
-            Join Conversation
-          </Text>
-          <View></View>
         </View>
 
         <View
@@ -175,11 +159,11 @@ const Menu = (props) => {
           />
           <Text
             onPress={() => {
-              props.navigation.navigate('Profile');
+              props.navigation.navigate('Support');
               props.closeDrawer();
             }}
             style={styles.boardText}>
-            Settings
+            Contact Us
           </Text>
         </View>
 
@@ -233,6 +217,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginTop: -20,
     marginLeft: 70,
+    color: "black"
   },
   icon: {
     marginTop: 2,

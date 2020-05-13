@@ -14,7 +14,7 @@ import {
   DrawerLayoutAndroid,
   Linking,
   Alert,
-  Image
+  Image,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
 import Unorderedlist from 'react-native-unordered-list';
@@ -59,6 +59,7 @@ const LiveClass = (props) => {
               fontSize: 18,
               fontWeight: 'bold',
               margin: 10,
+              color: "black"
             }}>
             Course: {params.newsCourse}
           </Text>
@@ -72,7 +73,7 @@ const LiveClass = (props) => {
               fontFamily: 'sans-serif-thin',
               color: 'green',
             }}>
-            Topic: {params.courseContent} (Live Class)
+            Topic: {params.courseContent.toUpperCase()} (Live Class)
           </Text>
           <View
             style={{
@@ -91,46 +92,57 @@ const LiveClass = (props) => {
                 <SectionList
                   sections={[{title: 'LiveClass', data: [items.LiveStream]}]}
                   renderItem={({item}) => (
-                    <View style={styles.container1}>
-                           <View style={styles.fileName}>
-                        {/* <Text>{items.Url.substring([20], items.Url.length).split(".")[0]}</Text> */}
+                    <View>
+                      <TouchableOpacity
+                        onPress={() => {
+                          items.LiveStream &&
+                          typeof items.LiveStream !== 'undefined'
+                            ? Linking.openURL(item)
+                            : Alert.alert('This stream is not activated');
+                        }}>
+                        <View style={styles.container1}>
+                          <View style={{flexDirection: 'row'}}>
+                            <View>
+                              <Image
+                                source={require('../../assets/cbt.png')}
+                                style={{
+                                  width: 20,
+                                  height: 20,
+                                  alignSelf: 'center',
+                                  marginTop: 8,
+                                  marginRight: 7,
+                                }}
+                              />
+                            </View>
 
-                        <View>
-                        <Image
-                 source={require("../../assets/cbt.png")}
-                 style={{
-                  width: 20,
-                  height:20,
-                  alignSelf: 'center',
-                  marginTop: 8,
-                  marginRight: 7
-                }}
-                  />
+                            <View>
+                              <Text
+                                style={{
+                                  fontFamily: 'sans-serif-light',
+                                  fontSize: 13,
+                                  paddingTop: 10,
+                                  color: "black"
+                                }}>
+                                LIVE CLASS {index + 1}
+                              </Text>
+                            </View>
+                          </View>
+                          <View>
+                            <MaterialIcons
+                              name="keyboard-arrow-right"
+                              style={{fontSize: 20, marginTop: 9}}
+                            />
+                          </View>
                         </View>
-                        <View>
-                          <Text
-                            style={{
-                              fontFamily: 'sans-serif-light',
-                              fontSize: 15,
-                              paddingTop:10
-                            }}>
-                            Live Class {index +1}
-                          </Text>
-                        </View>
-                      </View>
-                      <View>
-                        <TouchableOpacity
-                          onPress={() => {
-                            items.LiveStream &&
-                            typeof items.LiveStream !== 'undefined'
-                              ? Linking.openURL(item)
-                              : Alert.alert(
-                                  'This stream is not activated',
-                                );
-                          }}>
-                          <Text style={styles.item}>Join</Text>
-                        </TouchableOpacity>
-                      </View>
+                      </TouchableOpacity>
+                      <View
+                        style={{
+                          borderWidth: 0.5,
+                          borderColor: '#ECECEC',
+                          marginTop: 5,
+                          width: '97%',
+                        }}
+                      />
                     </View>
                   )}
                   // renderSectionHeader={({section}) => (
@@ -139,7 +151,7 @@ const LiveClass = (props) => {
                   keyExtractor={(item, index) => index}
                 />
               </View>
-            )
+            );
           })}
         </View>
       </View>
@@ -186,7 +198,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#17732B',
     height: 52,
-    elevation: 10
+    elevation: 10,
   },
 
   headerWrapper1: {
