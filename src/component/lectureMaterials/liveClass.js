@@ -128,8 +128,8 @@ const LiveClass = (props) => {
                             </View>
                           </View>
                           <View>
-                            <MaterialIcons
-                              name="keyboard-arrow-right"
+                          <MaterialIcons
+                              name="play-arrow"
                               style={{fontSize: 20, marginTop: 9}}
                             />
                           </View>

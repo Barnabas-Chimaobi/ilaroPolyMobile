@@ -145,7 +145,7 @@ static navigationOptions = {
             style={{marginTop:10, marginRight:8}}
           />
           <View>
-          <Text style={{fontWeight: "bold", marginBottom: 5, color: "black"}}>{params.finds.CourseCode}- {params.finds.CourseName}</Text>
+          <Text style={{fontWeight: "bold", marginBottom: 5, color: "black", width: "85%"}}>{params.finds.CourseCode}- {params.finds.CourseName}</Text>
           <Text style={{fontFamily:"sans-serif-light", fontSize:13, width:"75%", color: "black"}}>{params.finds.Assignment.toUpperCase()}</Text>
           <View style={{flexDirection: "row"}}>
                     <Image

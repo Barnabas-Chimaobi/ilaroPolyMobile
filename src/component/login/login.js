@@ -12,7 +12,16 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {Icon, Text, Label, Input, Item} from 'native-base';
+import {
+  Container,
+  Header,
+  Content,
+  ListItem,
+  Text,
+  Body,
+  Icon,
+  CheckBox
+} from 'native-base';
 import Menu from '../drawer/menu';
 import Dashboard from '../dashboard/dashboard';
 import {Formik} from 'formik';
@@ -33,6 +42,8 @@ export default class StudentLogin extends Component {
       password: true,
       icon: 'eye-off',
       newArrayField: [],
+      rememberMe: false,
+      checked: false
     };
   }
 
@@ -55,11 +66,11 @@ export default class StudentLogin extends Component {
     } else {
       this.setState({showIndicator: false});
     }
-    setTimeout(()=>{
+    setTimeout(() => {
       this.setState({
-        showIndicator: false
-      })
-    },25000)
+        showIndicator: false,
+      });
+    }, 25000);
   };
   //  resetLoader = () => {
   //    if(this.state.newArrayField !== ""){
@@ -77,71 +88,70 @@ export default class StudentLogin extends Component {
       )
         .then((data) => data.json())
         .then((newData) => {
-        //  console.log("NEW DATA: ", newData);
-         if(newData.OutPut){
-          this.setState((prevState) => ({
-            newArrayField: prevState.newArrayField.concat(newData),
-          }));
-          
-          const mappedArray = this.state.newArrayField.map((item) => {
-            // console.log("ITEM: ", item);
-            return {
-              FullName: item.OutPut.FullName,
+          //  console.log("NEW DATA: ", newData);
+          if (newData.OutPut) {
+            this.setState((prevState) => ({
+              newArrayField: prevState.newArrayField.concat(newData),
+            }));
+
+            const mappedArray = this.state.newArrayField.map((item) => {
+              // console.log("ITEM: ", item);
+              return {
+                FullName: item.OutPut.FullName,
+              };
+            });
+
+            const API_ROOT = 'https://applications.federalpolyilaro.edu.ng';
+            const {
+              Id,
+              FirstName,
+              LastName,
+              OtherName,
+              ImageFileUrl,
+            } = newData.OutPut.Student.ApplicationForm.Person;
+            const MatricNumber = newData.OutPut.Student.MatricNumber;
+            const Levels = newData.OutPut.Level.Name;
+            const Department = newData.OutPut.Department.Name;
+            const Faculty = newData.OutPut.Department.Faculty.Name;
+            const Session = newData.OutPut.Session.Name;
+
+            const PersonDetails = {
+              Id,
+              FirstName,
+              LastName,
+              OtherName,
+              FullName: `${FirstName} ${LastName} ${OtherName}`,
+              ImageFileUrl: `${API_ROOT}${ImageFileUrl}`,
+              MatricNumber,
+              Levels,
+              Department,
+              Faculty,
+              Session,
             };
-            
-          },);
+            this.setState({showIndicator: false});
 
-          const API_ROOT = 'https://applications.federalpolyilaro.edu.ng';
-          const {
-            Id,
-            FirstName,
-            LastName,
-            OtherName,
-            ImageFileUrl,
-          } = newData.OutPut.Student.ApplicationForm.Person;
-          const MatricNumber = newData.OutPut.Student.MatricNumber;
-          const Levels = newData.OutPut.Level.Name;
-          const Department = newData.OutPut.Department.Name;
-          const Faculty = newData.OutPut.Department.Faculty.Name;
-          const Session = newData.OutPut.Session.Name;
+            AsyncStorage.setItem(
+              'personDetails',
+              JSON.stringify(PersonDetails),
+            );
 
-
-
-          const PersonDetails = {
-            Id,
-            FirstName,
-            LastName,
-            OtherName,
-            FullName: `${FirstName} ${LastName} ${OtherName}`,
-            ImageFileUrl: `${API_ROOT}${ImageFileUrl}`,
-            MatricNumber,
-            Levels,
-            Department,
-            Faculty,
-            Session
-          };
-          this.setState({showIndicator: false});
-
-          AsyncStorage.setItem('personDetails', JSON.stringify(PersonDetails));
-
-          this.props.navigation.navigate('Dashboard', {
-            mappedArray: mappedArray,
-            PersonDetails,
-          });
-          this.setState({regno: ''});
-          this.setState({password: ''});
-         }
-         else {
-          Alert.alert("Incorrect User details");
-          this.setState({showIndicator: false});
-          return;
-         }
+            this.props.navigation.navigate('Dashboard', {
+              mappedArray: mappedArray,
+              PersonDetails,
+            });
+            this.setState({regno: ''});
+            this.setState({password: ''});
+          } else {
+            Alert.alert('Incorrect User details');
+            this.setState({showIndicator: false});
+            return;
+          }
         })
         .catch((err) => {
           console.error(err, 'there was an error');
         });
     } else {
-      Alert.alert('please fill complete log in details', );
+      Alert.alert('please fill complete log in details');
     }
   };
 
@@ -149,6 +159,62 @@ export default class StudentLogin extends Component {
     return (text) => {
       this.setState({[name]: text});
     };
+  }
+
+  toggleRememberMe = (value) => {
+
+    this.setState({
+      rememberMe: !this.state.rememberMe
+  });
+
+   if(!this.state.rememberMe){
+     this.rememberUser()
+   }else{
+     this.forgetUser()
+   }
+    // this.setState({rememberMe: value});
+    // if (value == true) {
+    //   //user wants to be remembered.
+    //   this.rememberUser();
+    // } else {
+    //   this.forgetUser();
+    // }
+  };
+
+  rememberUser = async () => {
+    try {
+      await AsyncStorage.setItem('REG_NO', this.state.regno);
+    } catch (error) {
+      // Error saving data
+    }
+  };
+
+  getRememberedUser = async () => {
+    try {
+      const regno = await AsyncStorage.getItem('REG_NO');
+      if (regno !== null) {
+        // We have username!!
+        return regno;
+      }
+    } catch (error) {
+      // Error retrieving data
+    }
+  };
+
+  forgetUser = async () => {
+    try {
+      await AsyncStorage.removeItem('REG-NO');
+    } catch (error) {
+      // Error removing
+    }
+  };
+
+  async componentDidMount() {
+    const regno = await this.getRememberedUser();
+    this.setState({
+      regno: regno || '',
+      rememberMe: regno ? true : false,
+    });
   }
 
   render() {
@@ -166,24 +232,28 @@ export default class StudentLogin extends Component {
           <Image
             source={require('../../assets/ilarologo.jpeg')}
             style={{
-              marginTop: "30%",
+              marginTop: '30%',
               width: 200,
               height: 180,
               alignSelf: 'center',
-              marginBottom: -18
+              marginBottom: -18,
             }}
           />
 
           <View style>
             <View style={styles.formWrapper}>
-              <View style={styles.titleStyle}>
-              </View>
-         
+              <View style={styles.titleStyle}></View>
+
               <View style={styles.textInputWrapper}>
-              <Icon
-                   style={{color: "gray", fontSize:23, marginTop:-10, paddingRight: 5}}
-                    name="person"
-                  />
+                <Icon
+                  style={{
+                    color: 'gray',
+                    fontSize: 23,
+                    marginTop: -10,
+                    paddingRight: 5,
+                  }}
+                  name="person"
+                />
                 <TextInput
                   style={styles.textInput1}
                   name="regno"
@@ -194,10 +264,15 @@ export default class StudentLogin extends Component {
                 />
               </View>
               <View style={styles.textInputWrapper}>
-              <Icon
-                   style={{color: "gray", fontSize:23, marginTop:10, paddingRight:5}}
-                    name="key"
-                  />
+                <Icon
+                  style={{
+                    color: 'gray',
+                    fontSize: 23,
+                    marginTop: 10,
+                    paddingRight: 5,
+                  }}
+                  name="key"
+                />
                 <TextInput
                   style={styles.textInput2}
                   name="password"
@@ -208,35 +283,58 @@ export default class StudentLogin extends Component {
                   secureTextEntry={this.state.showPassword}
                   // placeholderTextColor={"red"}
                 />
-                  <Icon
-                   style={{color: "gray", fontSize:20, marginTop:15}}
-                    name={this.state.icon}
-                    onPress={() => {
-                      this.changeIcon();
-                    }}
-                  />
-                
-              </View>
-                <Spinner
-                  color={'green'}
-                  //visibility of Overlay Loading Spinner
-                  visible={this.state.showIndicator}
-                  //Text with the Spinner
-                  textContent={'Logging in...'}
-                  //Text style of the Spinner Text
-                  textStyle={styles.spinnerTextStyle}
+                <Icon
+                  style={{color: 'gray', fontSize: 20, marginTop: 15}}
+                  name={this.state.icon}
+                  onPress={() => {
+                    this.changeIcon();
+                  }}
                 />
-                <View style={styles.password}>
-                  <View>
-                    <TouchableOpacity
-                      style={styles.invoiceButton}
-                      onPress={() => {
-                        this.authentication(), this.onButtonPress();
-                      }}>
-                      <Text style={styles.generateInv}>SIGN IN</Text>
-                    </TouchableOpacity>
-                  </View>
+              </View>
+              <Spinner
+                color={'green'}
+                //visibility of Overlay Loading Spinner
+                visible={this.state.showIndicator}
+                //Text with the Spinner
+                textContent={'Logging in...'}
+                //Text style of the Spinner Text
+                textStyle={styles.spinnerTextStyle}
+              />
+              {/* <Switch
+                value={this.state.rememberMe}
+                onValueChange={(value) => this.toggleRememberMe(value)}
+              />
+              <Text>Remember Me</Text> */}
+
+                   <View style={{flexDirection: "row", marginTop:10, marginLeft:27}}>
+                   <CheckBox
+                    checked={this.state.rememberMe} color="green"
+                     onPress={()=>{
+                        this.toggleRememberMe()
+                    }}
+                  
+
+                    />
+                 
+                      <Text style={{marginLeft:20, fontSize:15}}>Remember Me</Text>
+                 
+                   </View>
+         
+           
+               
+               
+            
+              <View style={styles.password}>
+                <View>
+                  <TouchableOpacity
+                    style={styles.invoiceButton}
+                    onPress={() => {
+                      this.authentication(), this.onButtonPress();
+                    }}>
+                    <Text style={styles.generateInv}>SIGN IN</Text>
+                  </TouchableOpacity>
                 </View>
+              </View>
             </View>
           </View>
         </ScrollView>
@@ -249,7 +347,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     // flex: 1,
-    height: "100%"
+    height: '100%',
   },
 
   titleStyle: {
@@ -262,11 +360,11 @@ const styles = StyleSheet.create({
     margin: 15,
   },
   textInput1: {
-    flex:1,
-    marginTop: -18
+    flex: 1,
+    marginTop: -18,
   },
   textInput2: {
-    flex:1
+    flex: 1,
   },
   formWrapper: {
     backgroundColor: 'white',
@@ -334,5 +432,4 @@ const styles = StyleSheet.create({
     width: 50,
     alignSelf: 'flex-end',
   },
-
 });

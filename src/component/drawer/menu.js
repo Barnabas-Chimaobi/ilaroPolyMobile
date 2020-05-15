@@ -30,7 +30,7 @@ const Menu = (props) => {
   let [loading, setLoading] = useState(false);
 
   const signOut = () => {
-    AsyncStorage.clear();
+    // AsyncStorage.clear();
     // Alert.alert("You Are Logged Out")
     props.navigation.navigate('Login');
 
@@ -56,9 +56,9 @@ const Menu = (props) => {
       />
       <View style={{backgroundColor:"#17732B"}}>
         <Image style={styles.profileImage} source={{uri: ImageFileUrl}} />
-        <Text style={{alignSelf: "flex-start", marginTop: 10, color: "white", marginLeft: 20, fontFamily: "sans-serif-condensed" ,fontSize:17}}>{FullName}</Text>
+        <Text style={{alignSelf: "flex-start", marginTop: 10, color: "white", marginLeft: 20, fontFamily: "sans-serif-condensed" ,fontSize:15}}>{FullName}</Text>
 
-        <Text style={{alignSelf: "flex-start", margin: 5, color: "white", marginLeft:20, borderWidth: 1, borderColor:"#CA9818", backgroundColor: "#CA9818", padding: 5, borderRadius:5, marginBottom: 20, fontFamily: "sans-serif-condensed", fontSize: 17 }}>{MatricNumber}</Text>
+        <Text style={{alignSelf: "flex-start", margin: 5, color: "white", marginLeft:20, borderWidth: 1, borderColor:"#CA9818", backgroundColor: "#CA9818", padding: 5, borderRadius:5, marginBottom: 20, fontFamily: "sans-serif-condensed", fontSize: 15 }}>{MatricNumber}</Text>
 
       </View>
       <View

@@ -332,29 +332,21 @@ class GetAssignment extends Component {
           </View>
           {/* <View style={{flex: 1}}> */}
           <ScrollView>
-            <Text style={{margin: 10, fontSize: 15, color: "black"}}>
-              * Assignment yet to be Submitted
-            </Text>
             <View>
               {this.state.CourseId.map((item, index) => {
-                const dt = new Date(item.DueDate);
-                let eachDate1 = dt.getDate();
-                let eachYear2 = dt.getFullYear();
-                let eachMonth3 = dt.getMonth();
-                let eachHour4 = dt.getHours();
-                let eachMinute5 = dt.getUTCMinutes();
-                const apiDate = dt.toDateString();
-                // console.log(eachDate1, eachHour4, eachYear2, ":SSSSSSSSSSSSSSSSSSSS")
+                const apiDate = new Date(item.DueDate);
+                //const apiDate = item.DueDate;
 
-                const dts = new Date(item.DueDate);
-                var hours = dts.getHours() - 1;
-                var minutes = dts.getMinutes();
+                var hours = apiDate.getHours() - 1;
+                var minutes = apiDate.getMinutes();
                 var ampm = hours >= 12 ? 'pm' : 'am';
                 hours = hours % 12;
                 hours = hours ? hours : 12; // the hour '0' should be '12'
                 minutes = minutes < 10 ? '0' + minutes : minutes;
                 var strTime = hours + ':' + minutes + ' ' + ampm;
-                let trueTime = `${apiDate} ${strTime}`;
+2
+                let trueTime = `${apiDate.getDate()}/${apiDate.getMonth() + 1}/${apiDate.getUTCFullYear()} - ${strTime}`;
+                //let trueTime = `${apiDate.toLocaleString()} - ${strTime}`;
                 return (
                   <TouchableWithoutFeedback
                     onPress={() => {
@@ -369,7 +361,7 @@ class GetAssignment extends Component {
                             flexDirection: 'row',
                             justifyContent: 'space-between',
                           }}>
-                          { dates > apiDate ? (
+                          { new Date().getTime() > apiDate.getTime() ? (
                             <TouchableWithoutFeedback
                               onPress={() => {
                                 // this.remapp(item.Id);
@@ -423,7 +415,6 @@ class GetAssignment extends Component {
                             <TouchableWithoutFeedback
                               onPress={() => {
                                 this.remapp(item.Id);
-                                Alert.alert('Due date exceeded');
                               }}>
                               <View style={{flexDirection: 'row'}}>
                                 <Image

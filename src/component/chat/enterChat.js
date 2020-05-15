@@ -116,7 +116,7 @@ class EnterChat extends Component {
   semesterList = () => {
     return this.state.semesters.map((y, z) => {
       if (z === 0) {
-        return <Picker.Item label={`Select Semester`} key={z} value={y} />;
+        return <Picker.Item label={`Select Semester`} key={z} value={y} color="green"/>;
       } else {
         console.log(`SEmester: ${this.state.semesterText[z]}`);
         return (

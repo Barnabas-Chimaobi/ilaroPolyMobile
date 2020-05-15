@@ -1,7 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Button, StyleSheet, TextInput, View , TouchableWithoutFeedback, Text} from 'react-native';
-import { GiftedChat } from 'react-native-gifted-chat';
-import MaterialIcon from "react-native-vector-icons/MaterialIcons"
+import React, {useState, useEffect} from 'react';
+import {
+  Button,
+  StyleSheet,
+  TextInput,
+  View,
+  TouchableWithoutFeedback,
+  Text,
+  ScrollView,
+} from 'react-native';
+import {GiftedChat} from 'react-native-gifted-chat';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 
 const MOCK_MESSAGES = [
   {
@@ -18,13 +27,14 @@ const MOCK_MESSAGES = [
 
 const Apps = (props) => {
   Apps.navigationOptions = {
-    headerShown: false
-  }
+    headerShown: false,
+  };
   const [name, setName] = useState('');
-  const [isEnter, setIsEnter] = useState("");
+  const [isEnter, setIsEnter] = useState([]);
   const [messages, setMessages] = useState([]);
   let [Chats, setChats] = useState([]);
-
+  let [Input, setInput] = useState('');
+  let [DateOfChat, setDateOfChat] = useState("")
 
   const {state, setParams, navigate} = props.navigation;
   const params = state.params || {};
@@ -40,108 +50,212 @@ const Apps = (props) => {
   // });
   const sampleCourseAllocation = params.alloc.CourseAllocationId;
 
-
   // const sampleCourseAllocation = CourseAllo[0];
 
-  const loadChats = () => {
-    fetch(
+  const loadChatMessages = async () => {
+    const response = await fetch(
       `http://applications.federalpolyilaro.edu.ng/api/e_learning/EnterChatRoom?courseAllocationId=${sampleCourseAllocation}&personId=${PersonId}`,
-    )
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (json) {
-        setChats(json.Output.EChatBoards);
+      {method: 'GET'},
+    );
 
-        const remappedMessages = Chats.map((c, index) => {
-          const addIndex = index + 1;
-          return {
-            _id: addIndex,
-            text: c.Response,
-            createdAt: c.DateSent,
-            user: {
-              _id: addIndex,
-              name: c.Sender,
-              // avatar:
-              //   'https://cdn.pixabay.com/photo/2016/11/18/23/38/child-1837375__340.png',
-            },
-          };
-        });
+    const jsonResponse = await response.json();
+    // setChats(jsonResponse.Output.EChatBoards);
 
-        setIsEnter(remappedMessages);
-      });
+    // const remappedMessages = jsonResponse.Output.EChatBoards.map((c, index) => {
+    //   const addIndex = index + 1;
+    //   return {
+    //     _id: addIndex,
+    //     text: c.Response,
+    //     createdAt: c.DateSent,
+    //     user: {
+    //       _id: addIndex,
+    //       name: c.Sender,
+    //       // avatar:
+    //       //   'https://cdn.pixabay.com/photo/2016/11/18/23/38/child-1837375__340.png',
+    //     },
+    //   };
+    // });
+
+    // console.log("EChats REMAPP: ", jsonResponse.Output.EChatBoards);
+
+    setIsEnter(jsonResponse.Output.EChatBoards);
   };
 
-  // setInterval(() => loadChats(), 10000);
+  // const loadChats = () => {
+  //   fetch(
+  //     `http://applications.federalpolyilaro.edu.ng/api/e_learning/EnterChatRoom?courseAllocationId=${sampleCourseAllocation}&personId=${PersonId}`,
+  //   )
+  //     .then(function (response) {
+  //       return response.json();
+  //     })
+  //     .then(function (json) {
+  //       setChats(json.Output.EChatBoards);
 
-  console.log('RES_22: ', Chats);
+  //       const remappedMessages = Chats.map((c, index) => {
+  //         const addIndex = index + 1;
+  //         return {
+  //           _id: addIndex,
+  //           text: c.Response,
+  //           createdAt: c.DateSent,
+  //           user: {
+  //             _id: addIndex,
+  //             name: c.Sender,
+  //             // avatar:
+  //             //   'https://cdn.pixabay.com/photo/2016/11/18/23/38/child-1837375__340.png',
+  //           },
+  //         };
+  //       });
 
-  const onSend = async (newMessages) => {
-    const [a, ...b] = newMessages;
+  //       setIsEnter(remappedMessages);
+  //     });
+  // };
+
+  //console.log('RES_22: ', Chats);
+
+  const onSend = async () => {
+    //const [a, ...b] = newMessages;
     const response = await fetch(
-      `http://applications.federalpolyilaro.edu.ng/api/e_learning/SaveChatResponse?courseAllocationId=${sampleCourseAllocation}&response=${a.text}&personId=${PersonId}`,
+      `http://applications.federalpolyilaro.edu.ng/api/e_learning/SaveChatResponse?courseAllocationId=${sampleCourseAllocation}&response=${Input}&personId=${PersonId}`,
     );
 
     const data = await response.json();
-    console.log(response, ":CHATTTT")
-    console.log( ":CHATTTT")
 
-    setMessages(GiftedChat.append(isEnter, newMessages));
-    loadChats()
+    await loadChatMessages();
 
+    console.log(response, ':CHATTTT');
+    console.log(Input, ': CHATTTT');
+
+    setInput('');
+
+   
+    //setMessages(GiftedChat.append(isEnter, newMessages, true));
   };
 
-  useEffect(()=>{
-    loadChats()
-  },[])
+  const myAsync = async () => {
+    await loadChatMessages();
+  };
 
-  //  loadChats()
-  setInterval(()=>{
-  loadChats()
-   },200000)
+  const myAsync1 = () => {
+    setInterval(async () => await loadChatMessages(), 15000);
+  };
 
+  useEffect(() => {
+    myAsync();
 
+    const date = new Date()
+    const chatDate = date.toDateString()
+    setDateOfChat(chatDate)
 
+    myAsync1()
+  }, []);
 
-  // const onSend = newMessages => {
-  //   setMessages(GiftedChat.append(messages, newMessages));
-  // };
-  
-       const user = { _id: name, 
-        name, 
-      // avatar: 'https://cdn.pixabay.com/photo/2016/11/18/23/38/child-1837375__340.png'
-      };
+ 
 
-      return (
-        <View style={{ flex: 1, backgroundColor: "#DFE9DA" }}>
-              <View style={styles.headerWrapper}>
-          <View style={styles.headerWrapper1}>
-            <TouchableWithoutFeedback onPress={()=> {
-              props.navigation.navigate("CoursesForChat")
+  const user = {
+    _id: name,
+    name,
+    // avatar: 'https://cdn.pixabay.com/photo/2016/11/18/23/38/child-1837375__340.png'
+  };
+
+  return (
+    <View style={{flex: 1, backgroundColor: '#E5DDD5'}}>
+      <View style={styles.headerWrapper}>
+        <View style={styles.headerWrapper1}>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              props.navigation.navigate('CoursesForChat');
             }}>
-              <MaterialIcon
-                name="arrow-back"
-                // name="keyboard-backspace"
-                style={{color: 'white', fontSize: 27, marginLeft: 15}}
-              />
-            </TouchableWithoutFeedback>
-            <Text style={{fontSize: 22, color: 'white', marginLeft: 20}}>
-              Back
-            </Text>
-          </View>
+            <MaterialIcon
+              name="arrow-back"
+              // name="keyboard-backspace"
+              style={{color: 'white', fontSize: 27, marginLeft: 15}}
+            />
+          </TouchableWithoutFeedback>
+          <Text style={{fontSize: 22, color: 'white', marginLeft: 20}}>
+            Back
+          </Text>
         </View>
-          <GiftedChat
+      </View>
+      {/* <GiftedChat
             messages={messages}
             onSend={newMessages => onSend(newMessages)}
             user={user}
             renderUsernameOnMessage
-          />
-        </View>
-        
-        );
-    
-};
+          /> */}
+      <View style={{flex: 1}}>
+        <ScrollView>
+        <Text style={{color: "#000000", textAlign: "center"}}>{DateOfChat}</Text>
+          {isEnter?.length > 0 ? (
+            isEnter.map((message, index) => {
+              return (
+                <View>
+                  {message.ActiveSender ? (
+                    <View style={styles.sender}>
+                        <Text style={{textAlign: "left",color: "#000000",}}>{message.Response}</Text>
+                        {/* <Text style={{textAlign: "right", color: "#000000"}} >{message.DateSent.substring(21, message.DateSent.length)}</Text> */}
 
+                    </View>
+                  ) : (
+                    <View style={styles.receiver}>
+                    <Text style={{textAlign: "left",color: "#000000"}}>{message.Response}</Text>
+                    {/* <Text style={{textAlign: "right", color: "#000000"}} >{message.DateSent}</Text> */}
+                    <Text style={{textAlign: "left",color: "green"}}>{message.Sender.toUpperCase()}</Text>
+
+
+                </View>
+                    
+                  )}
+                </View>
+              );
+            })
+          ) : (
+            <View>
+              <Text>No Messages To Display</Text>
+            </View>
+          )}
+        </ScrollView>
+      </View>
+      <View style={{marginTop: 60, flexDirection: 'row'}}>
+        <TextInput
+          style={styles.textInput1}
+          // name="regno"
+          onChangeText={(text) => setInput(text)}
+          value={Input}
+          placeholder="Type a Message"
+          clearTextOnFocus={true}
+          multiline={true}
+        />
+        <View
+          style={{
+            position: 'absolute',
+            left: 310,
+            bottom: 20,
+            right: 5,
+            borderRadius: 50,
+            height: 45,
+            marginBottom: -13,
+            backgroundColor: 'green',
+          }}>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              onSend();
+            }}>
+            <FontAwesome
+              name="paper-plane"
+              style={{
+                alignSelf: 'center',
+                paddingTop: 8,
+                color: 'white',
+                fontSize: 25,
+              }}
+            />
+            {/* <Text style={{alignSelf:"center", paddingTop:13}} >Send</Text> */}
+          </TouchableWithoutFeedback>
+        </View>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -150,11 +264,44 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  textInput: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    width: '50%'
+  textInput1: {
+    // height: 40,
+    // borderColor: 'gray',
+    // borderWidth: 1,
+    width: '80%',
+    position: 'absolute',
+    left: 5,
+    right: 0,
+    bottom: 5,
+    borderRadius: 20,
+    flexGrow: 1,
+    backgroundColor: '#ffffff',
+  },
+
+  sender: {
+    // textAlign: 'right',
+    backgroundColor: '#e9fac8',
+    marginTop: 5,
+    marginLeft: 90,
+    marginRight: 20,
+    padding: 5,
+    borderBottomRightRadius: 10,
+    borderBottomLeftRadius: 10,
+    borderTopLeftRadius: 10,
+    color:"#000000",
+
+  },
+  receiver: {
+    textAlign: 'left',
+    backgroundColor: '#ffffff',
+    marginTop: 5,
+    marginLeft: 20,
+    marginRight: 90,
+    padding: 5,
+    borderBottomRightRadius: 10,
+    borderBottomLeftRadius: 10,
+    borderTopRightRadius: 10,
+    color: "#000000",
   },
   headerWrapper: {
     display: 'flex',
@@ -162,7 +309,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#17732B',
     height: 52,
-    elevation: 10
+    elevation: 10,
   },
 
   headerWrapper1: {
