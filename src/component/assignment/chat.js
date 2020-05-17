@@ -139,6 +139,17 @@ const Apps = (props) => {
     setInterval(async () => await loadChatMessages(), 15000);
   };
 
+  // const apiDate = new Date(item.DueDate);
+  //const apiDate = item.DueDate;
+
+  // var hours = apiDate.getHours() - 1;
+  // var minutes = apiDate.getMinutes();
+  // var ampm = hours >= 12 ? 'pm' : 'am';
+  // hours = hours % 12;
+  // hours = hours ? hours : 12; // the hour '0' should be '12'
+  // minutes = minutes < 10 ? '0' + minutes : minutes;
+  // var strTime = hours + ':' + minutes + ' ' + ampm;
+
   useEffect(() => {
     myAsync();
 
@@ -187,19 +198,34 @@ const Apps = (props) => {
         <Text style={{color: "#000000", textAlign: "center"}}>{DateOfChat}</Text>
           {isEnter?.length > 0 ? (
             isEnter.map((message, index) => {
+                const apiDate = new Date(message.DateSent);
+              var hours = apiDate.getHours() - 1;
+              var minutes = apiDate.getMinutes();
+              var ampm = hours >= 12 ? 'pm' : 'am';
+              hours = hours % 12;
+              hours = hours ? hours : 12; // the hour '0' should be '12'
+              minutes = minutes < 10 ? '0' + minutes : minutes;
+              var strTime = hours + ':' + minutes + ' ' + ampm;
+
+              let time = new Date(message.DateSent)
+              let times = time.toDateString()
+              let stripDay = times.substring(3, times.length)
+
+              DateOfChat= `${stripDay} ${strTime}`
               return (
                 <View>
                   {message.ActiveSender ? (
                     <View style={styles.sender}>
                         <Text style={{textAlign: "left",color: "#000000",}}>{message.Response}</Text>
-                        {/* <Text style={{textAlign: "right", color: "#000000"}} >{message.DateSent.substring(21, message.DateSent.length)}</Text> */}
+                        <Text style={{textAlign: "right", color: "#000000", marginTop: 5}} >{DateOfChat}</Text>
 
                     </View>
                   ) : (
                     <View style={styles.receiver}>
+                     <Text style={{textAlign: "left",color: "green"}}>{message.Sender.toUpperCase()}</Text>
                     <Text style={{textAlign: "left",color: "#000000"}}>{message.Response}</Text>
+                    <Text style={{textAlign: "right", color: "#000000", marginTop: 5}} >{DateOfChat}</Text>
                     {/* <Text style={{textAlign: "right", color: "#000000"}} >{message.DateSent}</Text> */}
-                    <Text style={{textAlign: "left",color: "green"}}>{message.Sender.toUpperCase()}</Text>
 
 
                 </View>

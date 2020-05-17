@@ -10,7 +10,8 @@ import {
   TouchableOpacity,
   TouchableNativeFeedback,
   Linking,
-  DrawerLayoutAndroid
+  DrawerLayoutAndroid,
+  Alert
 } from 'react-native';
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 import Menu from "../drawer/menu"
@@ -103,6 +104,9 @@ static navigationOptions = {
     const mainUrl = `${API_ROOT}${url.substring(2, url.length)}`;
     console.log(mainUrl);
 
+    const extension = url.substring(url.lastIndexOf(".") + 1)
+    console.log(extension, ":EXTENSIONNNNNN")
+
     const dt = new Date(this.state.date);
     const yeah = dt.toDateString()
     console.log(yeah)
@@ -173,13 +177,25 @@ static navigationOptions = {
            </View>
        
           <View style={{flexDirection: "row", justifyContent: "space-between", margin:16}}>
-            <TouchableOpacity
-              onPress={() => {
-                Linking.openURL(mainUrl), console.log(mainUrl);
-              }}>
-              <Text style={styles.itemlink}>View PDF</Text>
-            </TouchableOpacity>
-
+            {extension != "pdf" ?
+                <TouchableOpacity
+                onPress={() => {
+                  Alert.alert("There is no Uploaded File to view")
+                  // Linking.openURL(mainUrl), console.log(mainUrl);
+                }}>
+                <Text style={styles.itemlink}>View PDF</Text>
+              </TouchableOpacity>
+              :
+                  <TouchableOpacity
+                  onPress={() => {
+                    Linking.openURL(mainUrl), console.log(mainUrl);
+                  }}>
+                  <Text style={styles.itemlink}>View PDF</Text>
+                </TouchableOpacity>
+    
+  
+          }
+        
         <TouchableHighlight
           onPress={() => {
             // this.remapp(item.Id);

@@ -344,7 +344,6 @@ class GetAssignment extends Component {
                 hours = hours ? hours : 12; // the hour '0' should be '12'
                 minutes = minutes < 10 ? '0' + minutes : minutes;
                 var strTime = hours + ':' + minutes + ' ' + ampm;
-2
                 let trueTime = `${apiDate.getDate()}/${apiDate.getMonth() + 1}/${apiDate.getUTCFullYear()} - ${strTime}`;
                 //let trueTime = `${apiDate.toLocaleString()} - ${strTime}`;
                 return (
