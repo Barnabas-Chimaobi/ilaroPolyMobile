@@ -89,6 +89,7 @@ const LiveClass = (props) => {
           {params.newArray.map((items, index) => {
             return (
               <View>
+                    {  items.LiveStream !== null?
                 <SectionList
                   sections={[{title: 'LiveClass', data: [items.LiveStream]}]}
                   renderItem={({item}) => (
@@ -149,7 +150,8 @@ const LiveClass = (props) => {
                   //   <Text style={styles.sectionHeader}>{section.title}</Text>
                   // )}
                   keyExtractor={(item, index) => index}
-                />
+                />: index === 0 ? Alert.alert("no content") : null
+                      }
               </View>
             );
           })}

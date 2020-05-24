@@ -7,10 +7,13 @@ import {
   ScrollView,
   Image,
   Linking,
-  DrawerLayoutAndroid
+  DrawerLayoutAndroid,
+  Alert
 } from 'react-native';
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 import Menu from "../drawer/menu"
+import { Immersive } from 'react-native-immersive'
+
 // import { TouchableWithoutFeedback } from "react-native-gesture-handler"
 
 class ViewAssignment1 extends Component {
@@ -20,11 +23,22 @@ static navigationOptions = {
 
   constructor(props) {
     super(props);
+
+    this.setImmersiveOn = () => {
+      Immersive.on()
+      this.setState({ isImmersive: true })
+    }
+    this.setImmersiveOff = () => {
+      Immersive.off()
+      this.setState({ isImmersive: false })
+    }
     this.state = {
       personId: '',
       CourseId: [],
       date: "",
-      newDate: ""
+      newDate: "",
+      isImmersive: false,
+
     };
   }
 
@@ -75,6 +89,18 @@ static navigationOptions = {
     this.drawer.closeDrawer();
   };
 
+  textFileAlert = () => {
+    const {state, setParams, navigate} = this.props.navigation;
+    const params = state.params || {};
+
+   return params.finds.SubmittedAssignmentText !== null?
+      <Text style={{ textTransform:"capitalize", color: "black"}}>
+      {params.finds.SubmittedAssignmentText}
+    </Text>:
+    Alert.alert("You did not Submit any text file")
+  
+  }
+
   render() {
     const activeStyle = {
       borderTopWidth: 5,
@@ -99,6 +125,9 @@ static navigationOptions = {
     const url = params.finds.SubmittedAssignmentUrl;
     const mainUrl = `${API_ROOT}${url.substring(2, url.length)}`;
     console.log(mainUrl);
+
+    const extension = url.substring(url.lastIndexOf(".") + 1)
+    console.log(extension, ":EXTENSIONNNNNN")
 
     const dt = new Date(this.state.date);
     const yeah = dt.toDateString()
@@ -141,8 +170,8 @@ static navigationOptions = {
             style={{marginTop:10, marginRight:8}}
           />
           <View>
-          <Text style={{fontWeight: "bold", marginBottom: 5, color: "black"}}>{params.finds.CourseCode}- {params.finds.CourseName}</Text>
-          <Text style={{marginRight:45, color: "black"}}>{params.finds.Assignment.toUpperCase()}</Text>
+          <Text style={{fontWeight: "bold", marginBottom: 5, color: "black", width: "95%"}}>{params.finds.CourseCode}- {params.finds.CourseName}</Text>
+          <Text style={{marginRight:45, color: "black", width: "95%"}}>{params.finds.Assignment.toUpperCase()}</Text>
           <View style={{flexDirection: "row"}}>
                     <Image
                     source={require("../../assets/cancelSchedule.png")}
@@ -162,20 +191,46 @@ static navigationOptions = {
             Assignment Submission Preview
           </Text>
              </View>
-         
-          <Text style={{borderWidth: 0.5, height: 350, marginTop: 10, padding:5, textTransform:"capitalize", color: "black"}}>
-            {params.finds.SubmittedAssignmentText}
-          </Text>
+           <View style={{borderWidth: 0.5, height: 320, marginTop: 10, padding:5,}}>
+             <ScrollView>
+              {this.textFileAlert()}
+             </ScrollView>
            </View>
+        
+           </View>
+
+           <TouchableWithoutFeedback onPress={()=> {
+             this.props.navigation.navigate("FullScreenView1", {finds: params.finds})
+           }}>
+            <View style={{flexDirection:"row",justifyContent:"flex-end"}}>
+            <MaterialIcons
+              name="fullscreen"
+              style={{ fontSize: 27, marginLeft: 15}}
+            />
+            <Text style={{marginTop: 5, marginRight:15}}>FullScreen</Text>
+              </View>
+           </TouchableWithoutFeedback>
        
           <View style={{flexDirection: "row", justifyContent: "space-between", margin:16}}>
-          <TouchableWithoutFeedback
-              onPress={() => {
-                Linking.openURL(mainUrl), console.log(mainUrl);
-              }}>
-            <Text style={styles.itemlink}>View Submitted PDF</Text>
-
-            </TouchableWithoutFeedback>
+          {extension != "pdf" ?
+                <TouchableWithoutFeedback
+                onPress={() => {
+                  Alert.alert("There is no Uploaded pdf File to view or pdf was not properly submitted")
+                  // Linking.openURL(mainUrl), console.log(mainUrl);
+                }}>
+                <Text style={styles.itemlink}>View Submitted PDF</Text>
+              </TouchableWithoutFeedback>
+              :
+                  <TouchableWithoutFeedback
+                  onPress={() => {
+                    Linking.openURL(mainUrl), console.log(mainUrl);
+                  }}>
+                  <Text style={styles.itemlink}>View Submitted PDF</Text>
+                </TouchableWithoutFeedback>
+    
+  
+          }
+ 
           </View>
         </View>
 
@@ -208,8 +263,9 @@ const styles = StyleSheet.create({
   backgroundColor: "green",
   height: 25,
   borderColor: "green",
-  paddingTop: 3,
-  color: "white"
+  paddingTop: 2,
+  color: "white",
+  padding:5
   },
   headerWrapper: {
     display: 'flex',

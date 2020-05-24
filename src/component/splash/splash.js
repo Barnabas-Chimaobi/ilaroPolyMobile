@@ -1,7 +1,7 @@
 
 
 import React, {Component} from 'react'
-import {View, Text, Image, StyleSheet, ImageBackground} from 'react-native'
+import {View, Text, Image, StyleSheet, ImageBackground, Animated} from 'react-native'
 export default class Splash extends Component {
  static navigationOptions ={
    headerShown: false
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
 
   image: {
     width: 250,
-    height: 220,
+    height: 220, 
     // marginTop:150,
     // alignItems: "center"
   },

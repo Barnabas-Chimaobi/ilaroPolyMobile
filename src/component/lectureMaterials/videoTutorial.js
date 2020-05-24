@@ -88,7 +88,8 @@ const VideoTutorial = (props) => {
           {params.newArray.map((items, index) => {
             // return items.VideoUrl && typeof items.VideoUrl !== 'undefined' ? (
               return (
-              <View>
+              <View>{
+                items.VideoUrl !== null?
                 <SectionList
                   sections={[{title: 'Videos', data: [items.VideoUrl]}]}
                   renderItem={({item}) => (
@@ -145,13 +146,16 @@ const VideoTutorial = (props) => {
                           width: '97%',
                         }}
                       />
-                    </View>
+                      </View>
+                   
+                    
                   )}
                   // renderSectionHeader={({section}) => (
                   //   <Text style={styles.sectionHeader}>{section.title}</Text>
                   // )}
                   keyExtractor={(item, index) => index}
-                />
+                />: index===0? Alert.alert("no content") : null
+                }
               </View>
             )
           })}

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   Button,
   StyleSheet,
@@ -160,13 +160,14 @@ const Apps = (props) => {
     myAsync1()
   }, []);
 
- 
 
   const user = {
     _id: name,
     name,
     // avatar: 'https://cdn.pixabay.com/photo/2016/11/18/23/38/child-1837375__340.png'
   };
+ 
+  const scrollViewRef = useRef();
 
   return (
     <View style={{flex: 1, backgroundColor: '#E5DDD5'}}>
@@ -194,7 +195,11 @@ const Apps = (props) => {
             renderUsernameOnMessage
           /> */}
       <View style={{flex: 1}}>
-        <ScrollView>
+        <ScrollView
+        ref={scrollViewRef}
+        onContentSizeChange={(contentWidth, contentHeight)=> {scrollViewRef.current.scrollToEnd({animated: true})}}
+      >
+        
         <Text style={{color: "#000000", textAlign: "center"}}>{DateOfChat}</Text>
           {isEnter?.length > 0 ? (
             isEnter.map((message, index) => {

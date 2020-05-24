@@ -156,6 +156,8 @@ class CourseContent extends Component {
             </View>
           </View>
           <View style={styles.mainContainer}>
+            <ScrollView>
+         
             <Text
               style={{
                 textAlign: 'center',
@@ -197,6 +199,7 @@ class CourseContent extends Component {
               textStyle={styles.spinnerTextStyle}
             />
             <View>
+  
               {params.newArray.map((items, index) => {
                 return (
                   <SectionList
@@ -250,7 +253,9 @@ class CourseContent extends Component {
                   />
                 );
               })}
+             
             </View>
+           </ScrollView>
           </View>
         </KeyboardAvoidingView>
       </DrawerLayoutAndroid>

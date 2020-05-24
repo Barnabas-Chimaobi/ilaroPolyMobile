@@ -5,9 +5,13 @@ import {
   StyleSheet,
   TouchableNativeFeedback,
   Image,
+  DrawerLayoutAndroid,
+  TouchableWithoutFeedback,
+  Alert,
+  ScrollView 
 } from 'react-native';
-import {DrawerLayoutAndroid} from 'react-native-gesture-handler';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import Fontawesome from 'react-native-vector-icons/FontAwesome5';
 import {Container, Drawer} from 'native-base';
 import Menu from '../drawer/menu';
 
@@ -59,192 +63,132 @@ class ProfilePage extends Component {
         ref={(_drawer) => {
           this.drawer = _drawer;
         }}>
+          <View style={{flex: 1}}>
+            <ScrollView>
         <View style={styles.headerWrapper}>
           <View style={styles.headerWrapper1}>
             <TouchableNativeFeedback onPress={(this.onPress = this.openDrawer)}>
               <MaterialIcon
                 name="menu"
                 // name="keyboard-backspace"
-                style={{color: 'white', fontSize: 27, marginLeft: 15}}
+                style={{
+                  color: 'white',
+                  fontSize: 27,
+                  marginLeft: 15,
+                  marginBottom: 170,
+                }}
               />
             </TouchableNativeFeedback>
-            <Text style={{color: 'white', fontSize: 20, marginLeft: 30}}>
-              Profile
-            </Text>
           </View>
-        </View>
-        <View>
-          <View>
+
+          <View style={{marginLeft: 50}}>
             <Text
               style={{
-                marginLeft: 30,
-                marginTop: 15,
+                color: 'white',
                 fontSize: 18,
-                color: 'green',
+                marginTop: 65,
+                marginLeft: 30,
               }}>
               My Profile
             </Text>
-            <Image
-              style={styles.profileImage}
-              source={{uri: params.PersonDetails.ImageFileUrl}}
-            />
-          </View>
-          <View style={styles.textContainer}>
-            <Text
-              style={{
-                fontWeight: 'bold',
-                fontSize: 18,
-                paddingLeft: 10,
-                paddingTop: 5,
-                marginRight: 30,
-                backgroundColor: "#DFE9DA",
-                width: 150,
-                color: "black"
-                
-              }}>
-              Name
-            </Text>
-            <Text
-              style={{
-                alignSelf: 'center',
-                paddingTop: 5,
-                paddingLeft: 1,
-                marginLeft: -15,
-                fontFamily: 'sans-serif-condensed',
-                fontSize: 17,
-                backgroundColor: "#DFE9DA",
-                height: 30,
-                width: 180,
-                color: "black"
-              }}>
-              {' '}
-              {params.PersonDetails.FullName}
-            </Text>
-          </View>
-          <View style={styles.textContainer}>
-            <Text
-              style={{
-                fontWeight: 'bold',
-                fontSize: 18,
-                paddingLeft: 10,
-                paddingTop: 5,
-                marginRight: 10,
-                backgroundColor: "#DFE9DA",
-                width: 150,
-                color: "black"
-            
-              }}>
-              MatricNumber
-            </Text>
-            <Text
-              style={{
-                alignSelf: 'center',
-                paddingTop: 5,
-                paddingLeft: 5,
-                marginLeft: 5,
-                fontFamily: 'sans-serif-condensed',
-                fontSize: 17,
-                backgroundColor: "#DFE9DA",
-                height: 30,
-                width: 180,
-                color: "black"
-              }}>
-              {params.PersonDetails.MatricNumber}
-            </Text>
           </View>
 
-          <View style={styles.textContainer}>
-            <Text
+          <View style={{width: '90%', marginLeft: -220, marginRight: -35}}>
+            <View
               style={{
-                fontWeight: 'bold',
-                fontSize: 18,
-                paddingLeft: 10,
-                paddingTop: 5,
-                marginRight: 28,
-                backgroundColor: "#DFE9DA",
-                width: 150,
-                color: "black"
+                backgroundColor: 'white',
+                marginTop: 120,
+                width: '100%',
+                borderRadius: 10,
+                elevation: 10
               }}>
-              Department
-            </Text>
-            <Text
-              style={{
-                alignSelf: 'center',
-                paddingTop: 5,
-                paddingLeft: 5,
-                marginLeft: -13,
-                fontFamily: 'sans-serif-condensed',
-                fontSize: 17,
-                backgroundColor: "#DFE9DA",
-                height: 30,
-                width: 180,
-                color: "black"
-              }}>
+              <Image
+                style={styles.profileImage}
+                source={{uri: params.PersonDetails.ImageFileUrl}}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  padding: 10,
+                  fontFamily: 'sans-serif-condensed',
+                  fontSize: 17,
+
+                  color: 'green',
+                }}>
+                {params.PersonDetails.FullName}
+              </Text>
+              <View
+                style={{
+                  backgroundColor: '#CA9818',
+                  width: 141,
+                  alignSelf: 'center',
+                  borderRadius: 6,
+                  marginBottom: 40,
+                }}>
+                <Text
+                  style={{
+                    alignSelf: 'center',
+                    fontFamily: 'sans-serif-condensed',
+                    fontSize: 17,
+                    padding: 3,
+                    color: 'white',
+                  }}>
+                  {params.PersonDetails.MatricNumber}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <TouchableWithoutFeedback
+            onPress={() => {
+              Alert.alert('No new Notifications');
+            }}>
+            <View style={styles.headerWrapper2}>
+              <Fontawesome
+                name="bell"
+                style={{
+                  color: 'white',
+                  fontSize: 18,
+                  marginRight: 15,
+                  alignSelf: 'flex-end',
+                  marginTop: 20,
+                }}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginTop: 180,
+            height: 130
+          }}>
+          <View style={{flexDirection: 'column', justifyContent: "space-between", height: 143, marginLeft: -15}}>
+            <Text style={styles.title1}>Department</Text>
+            <Text style={styles.title}>Level</Text>
+            <Text style={styles.title}>Session</Text>
+          </View>
+
+          <View
+            style={{
+              borderRightWidth: 1,
+              // flexGrow: 1,
+              borderRightColor: 'gray',
+              marginTop: 13,
+            }}
+          />
+
+          <View style={{flexDirection: 'column',  justifyContent: "space-between", height: 135}}>
+            <Text style={styles.label1}>
               {params.PersonDetails.Department.toUpperCase()}
             </Text>
+            <Text style={styles.label}>{params.PersonDetails.Levels}</Text>
+            <Text style={styles.label}>{params.PersonDetails.Session}</Text>
           </View>
-
-          <View style={styles.textContainer}>
-            <Text
-              style={{
-                fontWeight: 'bold',
-                fontSize: 18,
-                paddingLeft: 10,
-                paddingTop: 5,
-                marginRight: 73,
-                backgroundColor: "#DFE9DA",
-                width: 150,
-                color: "black"
-              }}>
-              Level
-            </Text>
-            <Text
-              style={{
-                alignSelf: 'center',
-                paddingTop: 5,
-                paddingLeft: 5,
-                marginLeft: -59,
-                fontFamily: 'sans-serif-condensed',
-                fontSize: 17,
-                backgroundColor: "#DFE9DA",
-                height: 30,
-                width: 180,
-                color: "black"
-              }}>
-              {params.PersonDetails.Levels}
-            </Text>
-          </View>
-
-          <View style={styles.textContainer}>
-            <Text
-              style={{
-                fontWeight: 'bold',
-                fontSize: 18,
-                paddingLeft: 10,
-                paddingTop: 5,
-                marginRight: 54,
-                backgroundColor: "#DFE9DA",
-                width: 150,
-                color: "black"
-              }}>
-              Session
-            </Text>
-            <Text
-              style={{
-                alignSelf: 'center',
-                paddingTop: 5,
-                paddingLeft: 5,
-                marginLeft: -40,
-                fontFamily: 'sans-serif-condensed',
-                fontSize: 17,
-                backgroundColor: "#DFE9DA",
-                height: 30,
-                width: 180,
-                color: "black"
-              }}>
-              {params.PersonDetails.Session}
-            </Text>
-          </View>
+        </View>
+        </ScrollView>
         </View>
       </DrawerLayoutAndroid>
     );
@@ -259,8 +203,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#17732B',
-    height: 52,
+    height: 240,
     elevation: 10,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
   },
 
   headerWrapper1: {
@@ -269,9 +215,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  headerWrapper2: {
-    alignSelf: 'center',
-  },
+  // headerWrapper2: {
+  //   alignSelf: 'center',
+  // },
   profileImage: {
     height: 120,
     width: 120,
@@ -279,30 +225,52 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderWidth: 3,
     borderRadius: 100,
-    marginTop: 10,
-    marginBottom: 30,
-    marginLeft: -25,
+    marginTop: 40,
+    // marginBottom: 30,
+    // marginLeft: -25,
   },
-  textContainer: {
-    flexDirection: 'row',
-    marginLeft: 5,
-    marginTop: 5,
-  },
+
   text1: {
     fontWeight: 'bold',
     fontSize: 18,
     paddingLeft: 10,
     paddingTop: 5,
   },
-  // text2: {
-  //   alignSelf: 'center',
-  //   marginTop: 6,
-  //   marginLeft: 30,
-  //   fontFamily: 'sans-serif-condensed',
-  //   fontSize: 17,
-  //   backgroundColor: "green",
-  //   height: 30,
-  //   color: "white",
-  //   width: 160
-  // },
+  title: {
+    color: 'green',
+    padding: 10,
+    marginLeft: 25,
+    fontSize: 15,
+    marginRight: 1,
+    marginBottom:5
+  },
+  title1: {
+    color: 'green',
+    padding: 10,
+    marginLeft: 25,
+    fontSize: 15,
+    marginRight: 1,
+    marginBottom:5,
+    marginTop: -4
+  },
+  label: {
+    color: '#000000',
+    padding: 10,
+    fontFamily: 'sans-serif-medium',
+    // marginLeft: -80,
+    marginRight: 130,
+    fontSize: 14,
+    width: "99%"
+  },
+  label1: {
+    color: '#000000',
+    padding: 10,
+    fontFamily: 'sans-serif-medium',
+    // marginLeft: -80,
+    marginRight: 130,
+    fontSize: 14,
+    width: '99%',
+    marginTop: -6,
+    bottom: 0
+  },
 });

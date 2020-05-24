@@ -293,7 +293,7 @@ class GetAssignment extends Component {
                                 <Text
                                   style={{
                                     fontWeight: 'bold',
-                                    width: '98%',
+                                    width: '95%',
                                     marginBottom: 3,
                                     color: 'black',
                                   }}>
@@ -323,15 +323,16 @@ class GetAssignment extends Component {
                                       style={{
                                         fontFamily: 'sans-serif-light',
                                         backgroundColor: 'orange',
-                                        height: 30,
+                                        height: 40,
                                         padding: 5,
                                         borderRadius: 5,
                                         width: 60,
                                         alignSelf: 'center',
                                         paddingLeft: 15,
                                         color: 'white',
+                                        paddingTop: 0
                                       }}>
-                                      score
+                                      score: {item.SubmittedAssignmentScore}
                                     </Text>
                                   ) : null}
                                 </View>

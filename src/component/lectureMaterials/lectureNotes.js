@@ -89,6 +89,7 @@ const LectureNotes = (props) => {
           {params.newArray.map((items, index) => {
             return (
               <View style={styles.container1}>
+                {  items.Url !== null?
                 <SectionList
                   sections={[
                     {
@@ -156,7 +157,8 @@ const LectureNotes = (props) => {
                   //   <Text style={styles.sectionHeader}>{section.title}</Text>
                   // )}
                   keyExtractor={(item, index) => index}
-                />
+                />:index===0? Alert.alert("no content") : null
+                }
               </View>
             );
           })}

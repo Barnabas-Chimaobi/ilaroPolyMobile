@@ -152,7 +152,7 @@ const Menu = (props) => {
 
         <View style={styles.eachIcon}>
           <MaterialIcons
-            name="settings"
+            name="contact-mail"
             size={20}
             color="green"
             style={styles.icon}

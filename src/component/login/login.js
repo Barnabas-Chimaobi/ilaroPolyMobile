@@ -316,7 +316,7 @@ export default class StudentLogin extends Component {
 
                     />
                  
-                      <Text style={{marginLeft:20, fontSize:15}}>Remember Me</Text>
+                      <Text style={{marginLeft:20, fontSize:15, fontFamily: "sans-serif-light"}}>Remember Me</Text>
                  
                    </View>
          

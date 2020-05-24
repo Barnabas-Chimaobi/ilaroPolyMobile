@@ -15,6 +15,9 @@ import {
 } from 'react-native';
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 import Menu from "../drawer/menu"
+// import FullScreen, {ToggleView} from 'react-native-full-screen'
+import { Immersive } from 'react-native-immersive'
+
 // import { TouchableHighlight } from "react-native-gesture-handler"
 
 class ViewAssignment extends Component {
@@ -24,11 +27,23 @@ static navigationOptions = {
 
   constructor(props) {
     super(props);
+
+    this.setImmersiveOn = () => {
+      Immersive.on()
+      this.setState({ isImmersive: true })
+    }
+    this.setImmersiveOff = () => {
+      Immersive.off()
+      this.setState({ isImmersive: false })
+    }
+
     this.state = {
       personId: '',
       CourseId: [],
       date: "",
-      newDate: ""
+      newDate: "",
+      isImmersive: false,
+
     };
   }
 
@@ -79,6 +94,8 @@ static navigationOptions = {
     this.drawer.closeDrawer();
   };
 
+
+
   render() {
     const activeStyle = {
       borderTopWidth: 5,
@@ -125,7 +142,6 @@ static navigationOptions = {
         ref={(_drawer) => {
           this.drawer = _drawer;
         }}>
-      <ScrollView>
                      <View style={styles.headerWrapper}>
         <View style={styles.headerWrapper1}>
           <TouchableNativeFeedback
@@ -166,14 +182,35 @@ static navigationOptions = {
            <View style={{marginLeft:15, marginRight: 15}}>
              <View style={{flexDirection: "row", borderWidth: 0.5, height: 60, padding: 5, borderColor: "gray"}}>
              <Image source={require("../../assets/instruction.png")}/>
-           <Text style={{marginLeft:5,width:"90%", textTransform:"capitalize", color: "black"}}>
+             <ScrollView>
+             <Text style={{marginLeft:5,width:"90%", textTransform:"capitalize", color: "black"}}>
             {params.finds.instruction1}
-          </Text>
+              </Text>
+             </ScrollView>
+     
              </View>
-         
-          <Text style={{borderWidth: 0.5, height: 350, marginTop: 10, padding:5, textTransform: "capitalize", color: "black" }}>
+             <View style={{borderWidth: 0.5, height: 320, marginTop: 10, padding:5,}}>
+            <ScrollView >
+            <Text style={{ textTransform: "capitalize", color: "black" }}>
             {params.finds.Text}
           </Text>
+          </ScrollView>
+          
+         </View>
+         <TouchableWithoutFeedback onPress={()=>{
+           this.props.navigation.navigate("FullScreenView", {finds: params.finds})
+         }}>
+            <View style={{flexDirection:"row",justifyContent:"flex-end"}}>
+            <MaterialIcons
+              name="fullscreen"
+              style={{ fontSize: 27, marginLeft: 15}}
+            />
+            <Text style={{marginTop: 5}}>FullScreen</Text>
+              </View>
+           </TouchableWithoutFeedback>
+
+         
+  
            </View>
        
           <View style={{flexDirection: "row", justifyContent: "space-between", margin:16}}>
@@ -209,7 +246,7 @@ static navigationOptions = {
           </View>
         </View>
 
-      </ScrollView>
+    
     </DrawerLayoutAndroid>
     );
   }

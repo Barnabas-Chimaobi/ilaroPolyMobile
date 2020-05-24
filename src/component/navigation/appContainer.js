@@ -26,6 +26,9 @@ import Profile from "../../component/profile/profile"
 import Call from "../../component/support/call"
 import News from "../../component/news/news"
 import Cbt from "../../component/cbt/cbt"
+import FullScreenView from "../../component/assignment/fullScreenView"
+import FullScreenView1 from "../../component/assignment/fullScreenView1"
+
 
 const AppNavigator = createStackNavigator(
   {
@@ -52,7 +55,9 @@ const AppNavigator = createStackNavigator(
     Profile,
     Call, 
     News,
-    Cbt
+    Cbt,
+    FullScreenView,
+    FullScreenView1
   },
   {
     initialRouteName: "Splash",
