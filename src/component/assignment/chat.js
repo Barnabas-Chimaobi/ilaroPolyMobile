@@ -7,7 +7,9 @@ import {
   TouchableWithoutFeedback,
   Text,
   ScrollView,
+  KeyboardAvoidingView,
 } from 'react-native';
+import { Header } from 'react-navigation-stack';
 import {GiftedChat} from 'react-native-gifted-chat';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5';
@@ -241,7 +243,7 @@ const Apps = (props) => {
             })
           ) : (
             <View>
-              <Text>No Messages To Display</Text>
+              <Text>No Messages To Display Yet</Text>
             </View>
           )}
         </ScrollView>
@@ -283,6 +285,7 @@ const Apps = (props) => {
             {/* <Text style={{alignSelf:"center", paddingTop:13}} >Send</Text> */}
           </TouchableWithoutFeedback>
         </View>
+      
       </View>
     </View>
   );

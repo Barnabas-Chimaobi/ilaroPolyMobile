@@ -2,6 +2,7 @@
 
 import React, {Component} from 'react'
 import {View, Text, Image, StyleSheet, ImageBackground, Animated} from 'react-native'
+import {StatusBar} from 'react-native';
 export default class Splash extends Component {
  static navigationOptions ={
    headerShown: false
@@ -20,6 +21,10 @@ export default class Splash extends Component {
   render() {
     return(
       <View style={styles.container}>
+         <StatusBar
+                backgroundColor="#1B692B"
+                barStyle="default"
+          />
       <Image source={require("../../assets/ilarologo.jpeg")} style={styles.image}/>
    </View>
    
