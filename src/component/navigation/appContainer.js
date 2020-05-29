@@ -61,6 +61,7 @@ const AppNavigator = createStackNavigator(
   },
   {
     initialRouteName: "Splash",
+    headerMode: 'none',
     defaultNavigationOptions: {
       headerStyle: {
         backgroundColor: "#222e50"

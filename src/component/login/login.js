@@ -114,6 +114,8 @@ export default class StudentLogin extends Component {
             const Department = newData.OutPut.Department.Name;
             const Faculty = newData.OutPut.Department.Faculty.Name;
             const Session = newData.OutPut.Session.Name;
+            const password = this.state.password
+            const regno    = this.state.regno
 
             const PersonDetails = {
               Id,
@@ -127,8 +129,12 @@ export default class StudentLogin extends Component {
               Department,
               Faculty,
               Session,
+              password,
+              regno
             };
             this.setState({showIndicator: false});
+
+            console.log(PersonDetails, ":PERSONDETAILSSSSSSS")
 
             AsyncStorage.setItem(
               'personDetails',

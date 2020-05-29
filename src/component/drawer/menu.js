@@ -30,9 +30,10 @@ const Menu = (props) => {
   let [loading, setLoading] = useState(false);
 
   const signOut = () => {
-    // AsyncStorage.clear();
+ 
     // Alert.alert("You Are Logged Out")
-    props.navigation.navigate('Login');
+    props.navigation.navigate('Logout');
+    AsyncStorage.clear();
 
     setLoading(true);
 
@@ -40,7 +41,7 @@ const Menu = (props) => {
       setLoading(false);
 
       // Alert.alert('Oops!');
-    }, 8000);
+    }, 3000);
   };
 
   return (

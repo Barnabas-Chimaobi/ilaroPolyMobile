@@ -10,7 +10,8 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   Linking,
-  Alert
+  Alert,
+  BackHandler
   // TouchableWithoutFeedbackBase
 } from 'react-native';
 import {Root} from 'native-base'
@@ -36,6 +37,20 @@ class Dashboard extends Component {
     };
   }
 
+  handleBackButton = () => {
+    BackHandler.exitApp()
+    return true;
+};
+
+componentDidmount() {
+  BackHandler.addEventListener('hardwareBackPress', this.handleBackButton());
+  this.setState({showIndicator: false});
+}
+
+componentWillUnmount() {
+BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton());
+}
+
   alert = (item) => {
     alert(item);
   };
@@ -54,10 +69,6 @@ class Dashboard extends Component {
   onButtonPress = () => {
     this.setState({showIndicator: true});
   };
-
-  componentDidmount() {
-    this.setState({showIndicator: false});
-  }
 
   makeCall = () => {
 
