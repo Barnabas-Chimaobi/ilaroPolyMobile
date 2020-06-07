@@ -13,6 +13,7 @@ import { Header } from 'react-navigation-stack';
 import {GiftedChat} from 'react-native-gifted-chat';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5';
+// import PushNotification from "react-native-push-notification";
 
 const MOCK_MESSAGES = [
   {
@@ -37,6 +38,8 @@ const Apps = (props) => {
   let [Chats, setChats] = useState([]);
   let [Input, setInput] = useState('');
   let [DateOfChat, setDateOfChat] = useState("")
+  const [time, setTime] = useState(Date.now());
+  // const [Alert, setAlert] = useState("")
 
   const {state, setParams, navigate} = props.navigation;
   const params = state.params || {};
@@ -52,7 +55,43 @@ const Apps = (props) => {
   // });
   const sampleCourseAllocation = params.alloc.CourseAllocationId;
 
-  // const sampleCourseAllocation = CourseAllo[0];
+  // // const sampleCourseAllocation = CourseAllo[0];
+
+  // PushNotification.configure({
+  //   onRegister: function (token) {
+  //     console.log("TOKEN:", token);
+  //   },
+   
+  //   onNotification: function (notification) {
+  //     console.log("NOTIFICATION:", notification);
+
+  //     notification.finish(PushNotificationIOS.FetchResult.NoData);
+  //   },
+  //      permissions: {
+  //     alert: true,
+  //     badge: true,
+  //     sound: true,
+  //   },
+
+  //   popInitialNotification: true,
+  //   requestPermissions: true,
+  // });
+
+  // testNotification = () => {
+  //   PushNotification.localNotificationSchedule({
+  //     //... You can use all the options from localNotifications
+  //     title: "notification",
+  //     message: "My Notification Message", // (required)
+  //     date: new Date(Date.now() + 10 * 1000), // in 60 secs
+  //   });
+  // }
+
+  // PushNotification.localNotificationSchedule({ 
+  //   message: "My Notification",
+  //    date: new Date(Date.now() + 500 * 1000),  
+  // });
+
+  
 
   const loadChatMessages = async () => {
     const response = await fetch(
@@ -81,7 +120,14 @@ const Apps = (props) => {
     // console.log("EChats REMAPP: ", jsonResponse.Output.EChatBoards);
 
     setIsEnter(jsonResponse.Output.EChatBoards);
+
   };
+
+  // const alertChat = isEnter.map((res) =>{
+  //    return res.Response
+  // })
+
+  // setAlert(alertChat)
 
   // const loadChats = () => {
   //   fetch(
@@ -160,15 +206,15 @@ const Apps = (props) => {
     setDateOfChat(chatDate)
 
     myAsync1()
-  }, []);
+    // testNotification()
+    const interval = setInterval(() => {
+      // testNotification()
+    }, 1000);
+    return () => clearInterval(interval);  
+  }, 
+    []);
 
 
-  const user = {
-    _id: name,
-    name,
-    // avatar: 'https://cdn.pixabay.com/photo/2016/11/18/23/38/child-1837375__340.png'
-  };
- 
   const scrollViewRef = useRef();
 
   return (

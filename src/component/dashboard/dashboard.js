@@ -11,16 +11,20 @@ import {
   ScrollView,
   Linking,
   Alert,
-  BackHandler
+  BackHandler,
+  Button, 
+  AsyncStorage
   // TouchableWithoutFeedbackBase
 } from 'react-native';
 import {Root} from 'native-base'
-import { Container, Header, Button, Content, ActionSheet} from "native-base";
+import { Container, Header, Content, ActionSheet} from "native-base";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontawesome from 'react-native-vector-icons/FontAwesome5';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Menu from '../drawer/menu';
+import firebase, { RNFirebase } from 'react-native-firebase';
+import BackgroundFetch from "react-native-background-fetch";
 import Spinner from 'react-native-loading-spinner-overlay';
 import Footer from "../../component/support/support"
 import Call from "../../component/support/call"
@@ -33,7 +37,12 @@ class Dashboard extends Component {
     super(props);
     this.state = {
       showIndicator: false,
-      clicked: null
+      clicked: null,
+      firebase_messaging_token: '',
+      firebase_messaging_message: '',
+      firebase_notification: '',
+      firebase_send: '',
+      newAssignment: null
     };
   }
 
@@ -42,13 +51,71 @@ class Dashboard extends Component {
     return true;
 };
 
-componentDidmount() {
-  BackHandler.addEventListener('hardwareBackPress', this.handleBackButton());
+
+compareAndContrast = (newArray, existingArray) => {
+  const missings = [];
+  const matchesArray = [];
+  let matches = false;
+
+  for ( let i = 0; i < newArray.length; i++ ) {
+      matches = false;
+      for ( let e = 0; e < existingArray.length; e++ ) {
+          if ( newArray[i]?.Id === existingArray[e]?.Id ) {
+            matches = true;
+            matchesArray.push(newArray[i]);
+            return matchesArray;
+          } else if(!matches) missings.push( newArray[i] );{
+          
+       return missings;
+          }
+      }
+     
+  }
+}
+ componentDidMount() {
+  BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
+  this.createNotificationChannel();
+  this.checkNotificationPermissions();
+  this.addNotificationListeners();
   this.setState({showIndicator: false});
+
+  BackgroundFetch.configure({
+    minimumFetchInterval: 15,
+    stopOnTerminate: false,
+    startOnBoot: true,
+    enableHeadless: true,
+  }, async (taskId) => {
+
+    console.log("Received background-fetch event: " + taskId);
+    
+    /* process background tasks */
+    this.sendAssignmentToFirebase()
+    this.sendToServer()
+    
+    BackgroundFetch.finish();
+  }, (error) => {
+    console.log("RNBackgroundFetch failed to start");
+  });
+
+  // BackgroundFetch.registerHeadlessTask(this.sendAssignmentToFirebase());
+
+  this.sendAssignmentToFirebase()
+  this.sendToServer()
+  
+  AsyncStorage.getItem("Assignments").then(dtr => {
+    dtr = JSON.parse(dtr);
+    console.log("ERROR: ", dtr)
+
+  })
+
 }
 
 componentWillUnmount() {
-BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton());
+
+      // this.notificationListener();
+    // this.notificationOpenedListener();
+    this.removeNotificationListeners();
+BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton())
 }
 
   alert = (item) => {
@@ -82,6 +149,196 @@ BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton());
 
     Linking.openURL(phoneNumber);
   };
+
+
+  createNotificationChannel = () => {
+    console.log("createNotificationChannel");
+    // Build a android notification channel
+    const fcmChannelID = 'fcm_default_channel';
+    const channel = new firebase.notifications.Android.Channel(
+      fcmChannelID, // channelId
+      "FCM Default Channel", // channel name
+      firebase.notifications.Android.Importance.High // channel importance
+    ).setDescription("Test Channel"); // channel description
+    // Create the android notification channel
+    firebase.notifications().android.createChannel(channel);
+  };
+
+  checkNotificationPermissions() {
+    console.log("checkNotificationPermissions");
+    // show token
+    firebase.messaging().hasPermission()
+      .then(enabled => {
+        if (enabled) {
+          console.log('user has notification permission')
+          this.setToken();
+        } else {
+          console.log('user does not have notification permission')
+          firebase.messaging().requestPermission()
+            .then((result) => {
+              if (result) {
+                this.setToken();
+              }
+              else {
+              }
+            });
+        }
+      });
+  }
+ 
+  setToken(token) {
+    console.log("setToken");
+    firebase.messaging().getToken().then((token) => {
+      this.setState({ firebase_messaging_token: token });
+      console.log(token, "toKEEEEEENNNNNN");
+    });
+  }
+	
+  addNotificationListeners() {
+    const fcmChannelID = 'fcm_default_channel';
+    console.log("receiveNotifications");
+    this.messageListener = firebase.messaging().onMessage((message) => {
+      // "Headless" Notification
+      console.log("onMessage");
+    });
+ 
+    this.notificationInitialListener = firebase.notifications().getInitialNotification().then((notification) => {
+          if (notification) {
+            // App was opened by a notification
+            // Get the action triggered by the notification being opened
+            // Get information about the notification that was opened
+            console.log("onInitialNotification");
+          }
+      });
+ 
+    this.notificationDisplayedListener = firebase.notifications().onNotificationDisplayed((notification) => {
+      console.log("onNotificationDisplayed");
+    });
+ 
+    this.notificationListener = firebase.notifications().onNotification((notification) => {
+      console.log("onNotification");
+      notification.android.setChannelId(fcmChannelID);
+      firebase.notifications().displayNotification(notification).catch((err) => {
+        console.log(err);
+      });
+ 
+      // Process your notification as required
+ 
+      // #1: draw in View
+      var updatedText = this.state.firebase_notification + "\n" +
+        "[" + new Date().toLocaleString() + "]" + "\n" + 
+        notification.title + ":" + notification.body + "\n";
+ 
+      this.setState({ firebase_notification: updatedText });
+    });
+ 
+    this.tokenRefreshListener = firebase.messaging().onTokenRefresh(fcmToken => {
+      // Process your token as required
+      console.log("onTokenRefresh");
+    });  
+  }
+ 
+  removeNotificationListeners() {
+    this.messageListener;
+    this.notificationInitialListener;
+    this.notificationDisplayedListener;
+    this.notificationListener;
+    this.tokenRefreshListener;    
+  }
+  
+  sendAssignmentToFirebase = async () => {
+    const {state, setParams, navigate} = this.props.navigation;
+    const params = state.params || {};
+    console.log("0personid:", this.state.passwords)
+    const response = await fetch(
+      `http://applications.federalpolyilaro.edu.ng/api/e_learning/AssignmentByCategory?personId=${params.PersonDetails.Id}`,
+    );
+    // let response = {
+    //         "Assignment":"this course",
+    //         "CourseCode":"ACC419",
+    //         "CourseName":"Accounting",
+    //         "DateSet" : "0002-02-01T000:00:00",
+    //         "DueDate" : "2020-05-31T17:00:00",
+    //         "Id" : 20916,
+    //         "SubmittedAssignmentScore" : "",
+    //         "SunmittedAssignmentUrl" : "",
+    //         "URL" : "",
+
+    //    },
+       
+    
+    let resToJson = await response.json();
+    console.log(resToJson, "RESSSSSSSSSSSSSSSSSSS")
+
+     //Save the returned assignments to async storage
+
+    let assignmentLoad = await AsyncStorage.getItem("Assignments");
+    let assignmentLoads = JSON.parse(assignmentLoad);
+    console.log(assignmentLoads, "DOMMMMY ASSIGNMENT DATA")
+    const unNotSubmittedAssignmentsUserDoesNotHave = 
+    this.compareAndContrast(resToJson.Output.NotSubmittedAssignment, assignmentLoads.Output.NotSubmittedAssignment);
+    console.log(`New Unsubmitted Assignments From API:`, unNotSubmittedAssignmentsUserDoesNotHave);
+    await AsyncStorage.setItem("CurrentAssignmentList", JSON.stringify(resToJson));
+
+   const newAssignments = unNotSubmittedAssignmentsUserDoesNotHave.map((item) => {
+   return `${item.CourseCode}  ${item.CourseName}`
+   
+   })
+
+   this.setState({
+    newAssignment: newAssignments
+  })
+
+  console.log(this.state.newAssignment, "NEWWWWWWWWWWWWWWWWWWWWASSS")
+  console.log(resToJson)
+
+    return resToJson;
+
+  
+  }
+  
+  sendToServer = async(str) => {
+    const firebase_server_key = 'AAAAfImolUU:APA91bGL7RnddnrKqmSBmnayL_BrpWM7M4eIsIeD3VxB3peT7Da3B0xwhXnIx3LNBuzALvAIweXK4THS72AfXVbJ01EaVw2h0LMsPMtwPinhNoLff69lim38-61fLr1cMWFyF6TE_dBs';
+    console.log("sendToServer");
+    console.log(str);
+ 
+    // SEND NOTIFICATION THROUGH FIREBASE
+    // Workflow: React -> Firebase -> Target Devices
+ 
+    fetch('https://fcm.googleapis.com/fcm/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'key=' + firebase_server_key,
+      },
+      body: JSON.stringify({
+        "registration_ids":[
+          this.state.firebase_messaging_token
+        ],
+        "data": {
+          "title":"New Assignment Available",
+          // "body": this.state.newAssignment
+          "body": this.state.newAssignment
+        },
+        "notification": {
+            "title":"New Assignment Available",
+            // "body": this.state.newAssignment
+            "body": this.state.newAssignment
+        },
+      }),
+    })
+    .then((response) => {
+      console.log("Request sent!");
+      console.log(response);
+      console.log("FCM Token: " + this.state.firebase_messaging_token);
+      console.log("Message: " + str);
+      this.setState({ firebase_send: '' });
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
 
   render() {
     const {state, setParams, navigate} = this.props.navigation;
@@ -140,6 +397,7 @@ BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton());
 
               <TouchableNativeFeedback
                 onPress={() => {
+                  BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton)
                   this.props.navigation.navigate('Lecture', {
                     PersonDetails: params.PersonDetails,
                   });
@@ -171,6 +429,7 @@ BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton());
              
              <TouchableNativeFeedback
                   onPress={() => {
+                    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton)
                     this.props.navigation.navigate('GetAssignment', {
                       PersonDetails: params.PersonDetails,
                     });
@@ -205,6 +464,7 @@ BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton());
 
                    <TouchableWithoutFeedback
                     onPress={() => {
+                      BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton)
                       this.props.navigation.navigate("Cbt")
                     }}
                    >
@@ -233,6 +493,7 @@ BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton());
             <View style={styles.noteContainer}>
       
               <TouchableWithoutFeedback onPress={()=> {
+                BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton)
                 this.props.navigation.navigate("EnterChat", {PersonDetails: params.PersonDetails})
               }}>
                 <View>
@@ -279,6 +540,8 @@ BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton());
            </View>
         
          </TouchableWithoutFeedback>
+         <Button onPress={async() =>await this.sendAssignmentToFirebase()} title="save assignment" />
+         <Button onPress={() => this.sendToServer(this.state.firebase_send)} title="Send and Receive" />
      
       </DrawerLayoutAndroid>
       

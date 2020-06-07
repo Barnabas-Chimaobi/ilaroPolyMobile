@@ -22,16 +22,16 @@ class Lecture extends Component {
   };
   state = {
     showIndicator: false,
-    selectedCourseText: '',
+    selectedCourseText: null,
     courses: [],
     semesterText: ['', 'First Semester', 'Second Semester', 'Third Semester'],
     semesters: [0, 1, 2, 3],
     newCourse: 0,
-    newSemester: '',
+    newSemester: null,
     contentList: [],
-    courseCode: "",
+    courseCode: null,
     PersonDetails: {
-      Id: '',
+      Id: null,
       FirstName: null,
       OtherName: null,
       FullName: null,
@@ -39,8 +39,17 @@ class Lecture extends Component {
     },
   };
 
+  componentDidMount() {
+    //Method 1: The prop Way
+    const {state, setParams, navigate} = this.props.navigation;
+    const params = state.params || {};
+    this.setState({
+      PersonDetails: params.PersonDetails,
+    });
+  }
+
   onButtonPress = () => {
-    if (this.state.selectedCourseText !== "" && this.state.newSemester === this.state.newSemester) {
+    if (this.state.selectedCourseText !== null && this.state.newSemester === this.state.newSemester) {
       this.setState({showIndicator: true});
     } else {
       this.setState({showIndicator: false});
@@ -57,18 +66,6 @@ class Lecture extends Component {
     }, 15000)
   };
 
-  componentDidMount() {
-    //Method 1: The prop Way
-    const {state, setParams, navigate} = this.props.navigation;
-    const params = state.params || {};
-    console.log(params, ': RRRRRRR');
-
-    console.log(params.PersonDetails.Id, ':GGGGGGGG');
-
-    this.setState({
-      PersonDetails: params.PersonDetails,
-    });
-  }
 
   collectCourses = (value) => {
     if (typeof value === 'number' && value > 0) {
@@ -80,7 +77,7 @@ class Lecture extends Component {
             courses: [...response1.Output],
             showIndicator: false,
           });
-          console.log('ghhj:', response1);
+          // console.log('ghhj:', response1);
         })
         .catch((err) => {
           console.log(err);
@@ -101,16 +98,17 @@ class Lecture extends Component {
           };
         });
 
-        newArray == ''
+        newArray === ''
           ? Alert.alert('there is no study material for this course')
-          : console.log(newArray, ', ARRAY');
+          : null 
+          // console.log(newArray, ', ARRAY');
 
         this.setState({
           contentList: newArray,
           showIndicator: false,
         });
 
-        console.log(this.state.newCourse, ':NEWCOUSERjjjjj');
+        // console.log(this.state.newCourse, ':NEWCOUSERjjjjj');
         const {state, setParams, navigate} = this.props.navigation;
         const params = state.params || {};
         this.props.navigation.navigate('CourseContent', {
@@ -164,7 +162,7 @@ class Lecture extends Component {
       if (z === 0) {
         return <Picker.Item label={`Select Semester`} key={z} value={y} color="green"/>;
       } else {
-        console.log(`SEmester: ${this.state.semesterText[z]}`);
+        // console.log(`SEmester: ${this.state.semesterText[z]}`);
         return (
           <Picker.Item label={this.state.semesterText[z]} key={z} value={y} />
         );
@@ -277,8 +275,8 @@ class Lecture extends Component {
                 onPress={() => {
                   this.onButtonPress();
                   this.viewCourseContent();
-                  console.log('CCCCCCCCCC:', this.state.PersonDetails?.Id),
-                    console.log('DDDD:', this.state.newCourse);
+                  // console.log('CCCCCCCCCC:', this.state.PersonDetails?.Id),
+                    // console.log('DDDD:', this.state.newCourse);
                 }}>
                 <Text
                   style={{

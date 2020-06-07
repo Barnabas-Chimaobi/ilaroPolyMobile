@@ -12,7 +12,12 @@ import Splash from './src/component/splash/splash';
 import Lecture from "./src/component/lecture/lecture"
 import Menu from "./src/component/drawer/menu"
 import Assignmeny from "./src/component/chat/chatTest"
+import bgMessaging from "./src/component/dashboard/dashboard"
+import BackgroundFetch from "react-native-background-fetch";
 
 AppRegistry.registerComponent(appName, () => AppContainer);
+AppRegistry.registerHeadlessTask(bgMessaging);
+// AppRegistry.registerHeadlessTask('RNFirebaseBackgroungMessage', () => bgMessaging);
+
 
 

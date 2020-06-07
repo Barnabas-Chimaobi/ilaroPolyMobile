@@ -10,6 +10,7 @@ import {
   Button,
   Alert,
   DrawerLayoutAndroid,
+  AsyncStorage
 } from 'react-native';
 import {Icon} from 'native-base';
 import Modal from 'react-native-modal';
@@ -94,6 +95,11 @@ class GetAssignment extends Component {
         });
           
         this.setState({showIndicator: false});
+
+        AsyncStorage.setItem(
+          'Assignments',
+          JSON.stringify(Data),
+        );
 
         console.log(Data, ':DDDDDDDDDDDD');
         console.log(this.state.submitted, ":SUBMITTEDDDDDD")

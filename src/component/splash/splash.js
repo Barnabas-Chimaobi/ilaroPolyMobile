@@ -2,6 +2,8 @@
 import React, {Component} from 'react'
 import {View, Text, Image, StyleSheet, ImageBackground, Animated, AsyncStorage} from 'react-native'
 import {StatusBar} from 'react-native';
+// import PushNotification from "react-native-push-notification";
+
 export default class Splash extends Component {
  static navigationOptions ={
    headerShown: false
@@ -14,9 +16,15 @@ export default class Splash extends Component {
       regno: null,
       PersonDetails: null
     }
+
+
+  // PushNotification.localNotificationSchedule({ 
+  //   message: "My Notification",
+  //    date: new Date(Date.now() + 500 * 1000),  
+  // })
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     setTimeout(() => {
        this.load();
           }, 3000);
@@ -34,7 +42,6 @@ export default class Splash extends Component {
           })
 
     }
-    
 
    load = () => {
 

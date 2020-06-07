@@ -10,6 +10,7 @@ import {
   Alert,
   Switch,
   ActivityIndicator,
+  Button
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {
@@ -22,6 +23,8 @@ import {
   Icon,
   CheckBox
 } from 'native-base';
+import firebase, { RNFirebase } from 'react-native-firebase';
+// import RemotepushController from "../services/RemotepushController"
 import Menu from '../drawer/menu';
 import Dashboard from '../dashboard/dashboard';
 import {Formik} from 'formik';
@@ -43,7 +46,12 @@ export default class StudentLogin extends Component {
       icon: 'eye-off',
       newArrayField: [],
       rememberMe: false,
-      checked: false
+      checked: false,
+      firebase_messaging_token: '',
+      firebase_messaging_message: '',
+      firebase_notification: '',
+      firebase_send: '',
+      passwords: ""
     };
   }
 
@@ -132,7 +140,10 @@ export default class StudentLogin extends Component {
               password,
               regno
             };
-            this.setState({showIndicator: false});
+            this.setState({
+            showIndicator: false,
+            passwords: PersonDetails.Id
+          });
 
             console.log(PersonDetails, ":PERSONDETAILSSSSSSS")
 
@@ -216,12 +227,258 @@ export default class StudentLogin extends Component {
   };
 
   async componentDidMount() {
+    // this.checkPermission();
+    // this.createNotificationListeners()
+    this.createNotificationChannel();
+    this.checkNotificationPermissions();
+    this.addNotificationListeners();
     const regno = await this.getRememberedUser();
     this.setState({
       regno: regno || '',
       rememberMe: regno ? true : false,
     });
+   
+    // setInterval(() => {
+    //   this.sendToServer()
+    // })
   }
+
+
+  componentWillUnmount() {
+    // this.notificationListener();
+    // this.notificationOpenedListener();
+    this.removeNotificationListeners();
+  }
+
+	
+  createNotificationChannel = () => {
+    console.log("createNotificationChannel");
+    // Build a android notification channel
+    const fcmChannelID = 'fcm_default_channel';
+    const channel = new firebase.notifications.Android.Channel(
+      fcmChannelID, // channelId
+      "FCM Default Channel", // channel name
+      firebase.notifications.Android.Importance.High // channel importance
+    ).setDescription("Test Channel"); // channel description
+    // Create the android notification channel
+    firebase.notifications().android.createChannel(channel);
+  };
+
+  checkNotificationPermissions() {
+    console.log("checkNotificationPermissions");
+    // show token
+    firebase.messaging().hasPermission()
+      .then(enabled => {
+        if (enabled) {
+          console.log('user has notification permission')
+          this.setToken();
+        } else {
+          console.log('user does not have notification permission')
+          firebase.messaging().requestPermission()
+            .then((result) => {
+              if (result) {
+                this.setToken();
+              }
+              else {
+              }
+            });
+        }
+      });
+  }
+ 
+  setToken(token) {
+    console.log("setToken");
+    firebase.messaging().getToken().then((token) => {
+      this.setState({ firebase_messaging_token: token });
+      console.log(token, "toKEEEEEENNNNNN");
+    });
+  }
+	
+  addNotificationListeners() {
+    const fcmChannelID = 'fcm_default_channel';
+    console.log("receiveNotifications");
+    this.messageListener = firebase.messaging().onMessage((message) => {
+      // "Headless" Notification
+      console.log("onMessage");
+    });
+ 
+    this.notificationInitialListener = firebase.notifications().getInitialNotification().then((notification) => {
+          if (notification) {
+            // App was opened by a notification
+            // Get the action triggered by the notification being opened
+            // Get information about the notification that was opened
+            console.log("onInitialNotification");
+          }
+      });
+ 
+    this.notificationDisplayedListener = firebase.notifications().onNotificationDisplayed((notification) => {
+      console.log("onNotificationDisplayed");
+    });
+ 
+    this.notificationListener = firebase.notifications().onNotification((notification) => {
+      console.log("onNotification");
+      notification.android.setChannelId(fcmChannelID);
+      firebase.notifications().displayNotification(notification).catch((err) => {
+        console.log(err);
+      });
+ 
+      // Process your notification as required
+ 
+      // #1: draw in View
+      var updatedText = this.state.firebase_notification + "\n" +
+        "[" + new Date().toLocaleString() + "]" + "\n" + 
+        notification.title + ":" + notification.body + "\n";
+ 
+      this.setState({ firebase_notification: updatedText });
+    });
+ 
+    this.tokenRefreshListener = firebase.messaging().onTokenRefresh(fcmToken => {
+      // Process your token as required
+      console.log("onTokenRefresh");
+    });  
+  }
+ 
+  removeNotificationListeners() {
+    this.messageListener();
+    this.notificationInitialListener;
+    this.notificationDisplayedListener();
+    this.notificationListener();
+    this.tokenRefreshListener();    
+  }
+  
+  sendAssignmentToFirebase = async () => {
+    console.log("0personid:", this.state.passwords)
+   const response = await fetch(
+      `http://applications.federalpolyilaro.edu.ng/api/e_learning/AssignmentByCategory?personId=${this.state.passwords}`,
+    );
+    const resToJson = await response.json();
+
+    //Save the returned assignments to async storage
+    await AsyncStorage.setItem("CurrentAssignmentList", JSON.stringify(resToJson));
+    console.log(`RESPONSE FROM FETCH API:`, resToJson);
+
+    const assignmentLoad = await AsyncStorage.getItem("CurrentAssignmentList");
+    console.log(`Current Assignment List: ${assignmentLoad}`);
+
+    return resToJson;
+  }
+  
+  sendToServer = async(str) => {
+    const firebase_server_key = 'AAAAfImolUU:APA91bGL7RnddnrKqmSBmnayL_BrpWM7M4eIsIeD3VxB3peT7Da3B0xwhXnIx3LNBuzALvAIweXK4THS72AfXVbJ01EaVw2h0LMsPMtwPinhNoLff69lim38-61fLr1cMWFyF6TE_dBs';
+    console.log("sendToServer");
+    console.log(str);
+ 
+    // SEND NOTIFICATION THROUGH FIREBASE
+    // Workflow: React -> Firebase -> Target Devices
+ 
+    fetch('https://fcm.googleapis.com/fcm/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'key=' + firebase_server_key,
+      },
+      body: JSON.stringify({
+        "registration_ids":[
+          this.state.firebase_messaging_token
+        ],
+        "data": {
+          "title":"Title",
+          "body": "my new message"
+        },
+        "notification": {
+            "title":"Title",
+            "body": "my new message"
+        },
+      }),
+    })
+    .then((response) => {
+      console.log("Request sent!");
+      console.log(response);
+      console.log("FCM Token: " + this.state.firebase_messaging_token);
+      console.log("Message: " + str);
+      this.setState({ firebase_send: '' });
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+//   async checkPermission() {
+//     const enabled = await firebase.messaging().hasPermission();
+//     if (enabled) {
+//         this.getToken();
+//     } else {
+//         this.requestPermission();
+//     }
+//   }
+
+//   async getToken() {
+//     let fcmToken = await AsyncStorage.getItem('fcmToken');
+//     if (!fcmToken) {
+//         fcmToken = await firebase.messaging().getToken();
+//         if (fcmToken) {
+//             // user has a device token
+//             await AsyncStorage.setItem('fcmToken', fcmToken);
+//         }
+//     }
+//   }
+
+//   async requestPermission() {
+//     try {
+//         await firebase.messaging().requestPermission();
+//         // User has authorised
+//         this.getToken();
+//     } catch (error) {
+//         // User has rejected permissions
+//         console.log('permission rejected');
+//     }
+//   }
+  
+  
+// async createNotificationListeners() {
+// /*
+// * Triggered when a particular notification has been received in foreground
+// * */
+// this.notificationListener = firebase.notifications().onNotification((notification) => {
+//     const { title, body } = notification;
+//     this.showAlert(title, body);
+// });
+
+// /*
+// * If your app is in background, you can listen for when a notification is clicked / tapped / opened as follows:
+// * */
+// this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
+//     const { title, body } = notificationOpen.notification;
+//     this.showAlert(title, body);
+// });
+
+// /*
+// * If your app is closed, you can check if it was opened by a notification being clicked / tapped / opened as follows:
+// * */
+// const notificationOpen = await firebase.notifications().getInitialNotification();
+// if (notificationOpen) {
+//     const { title, body } = notificationOpen.notification;
+//     this.showAlert(title, body);
+// }
+// /*
+// * Triggered for data only payload in foreground
+// * */
+// this.messageListener = firebase.messaging().onMessage((message) => {
+//   //process data message
+//   console.log(JSON.stringify(message), "messaserf");
+// });
+// }
+
+
+// showAlert(title, body) {
+// Alert.alert(
+//   title, body,
+//   [
+//       { text: 'OK', onPress: () => console.log('OK Pressed') },
+//   ],
+//   { cancelable: false },
+// );
+// }
 
   render() {
     // const gotten = this.state.newArrayField.map(item => {
@@ -231,6 +488,8 @@ export default class StudentLogin extends Component {
     //     matricno: item.OutPut.MatricNumber,
     //   };
     // });
+
+    
 
     return (
       <View style={styles.container}>
@@ -340,9 +599,13 @@ export default class StudentLogin extends Component {
                     <Text style={styles.generateInv}>SIGN IN</Text>
                   </TouchableOpacity>
                 </View>
+                <Button onPress={() => this.sendToServer(this.state.firebase_send)} title="Send and Receive" />
+                <Button onPress={async() =>await this.sendAssignmentToFirebase()} title="save assignment" />
+
               </View>
             </View>
           </View>
+          {/* <RemotepushController/> */}
         </ScrollView>
       </View>
     );

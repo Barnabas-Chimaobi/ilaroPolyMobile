@@ -58,6 +58,7 @@ target 'ilaroMobile1' do
 
   pod 'RNFS', :path => '../node_modules/react-native-fs'
 
+
   target 'ilaroMobile1Tests' do
     inherit! :complete
     # Pods for testing
