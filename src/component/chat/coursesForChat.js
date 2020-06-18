@@ -98,11 +98,12 @@ class coursesForChat extends Component {
 
 
 
-   remappedData =  (CourseAllocationIds) => {
+   remappedData =  (CourseAllocationIds, CourseNameForDisplay) => {
     const {state, setParams, navigate} = this.props.navigation;
     const params = state.params || {};
 
     console.log('ASSIGN ID: ', CourseAllocationIds);
+    console.log("COURsENAme:", CourseNameForDisplay)
     const newObject = this.state.AllocationId.map((item) => {
       return {
         CourseAllocationId: item.CourseAllocationId,
@@ -112,11 +113,13 @@ class coursesForChat extends Component {
     const selectedAllocation = newObject.find((as) => as.CourseAllocationId === CourseAllocationIds);
 
     console.log(selectedAllocation, ':ASDDDDDDD');
+    console.log(CourseNameForDisplay, ":NewCoursename")
     // this.setState({assignment: selectedAsignment});
     // console.log(this.state.assignment, ':ASSIGNMT');
     this.props.navigation.navigate('LiveChat', {
       alloc: selectedAllocation,
       PersonDetails: params.PersonDetails,
+      CName: CourseNameForDisplay
     });
    }
 
@@ -195,7 +198,7 @@ class coursesForChat extends Component {
                   <View>
                   <TouchableWithoutFeedback
                   onPress={() => {
-                    this.remappedData(items.CourseAllocationId);
+                    this.remappedData(items.CourseAllocationId, items.CourseName);
                   }}>
                   <View style={styles.container1}>
                     <Image

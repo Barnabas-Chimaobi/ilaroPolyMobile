@@ -33,7 +33,7 @@ const Menu = (props) => {
  
     // Alert.alert("You Are Logged Out")
     props.navigation.navigate('Logout');
-    AsyncStorage.clear();
+    // AsyncStorage.clear();
 
     setLoading(true);
 

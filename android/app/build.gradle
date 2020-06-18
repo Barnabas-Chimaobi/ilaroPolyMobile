@@ -78,6 +78,7 @@ import com.android.build.OutputFile
  */
 
 project.ext.react = [
+     entryFile: "index.js",
     enableHermes: false,  // clean and rebuild if changing
 ]
 
@@ -91,12 +92,12 @@ apply from: "../../node_modules/react-native/react.gradle"
  * Upload all the APKs to the Play Store and people will download
  * the correct one based on the CPU architecture of their device.
  */
-def enableSeparateBuildPerCPUArchitecture = false
+def enableSeparateBuildPerCPUArchitecture = true
 
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = true
 
 /**
  * The preferred build flavor of JavaScriptCore.
@@ -126,6 +127,11 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+
+     lintOptions {
+        checkReleaseBuilds false
+                  abortOnError false
+    }
     }
 
     defaultConfig {
@@ -141,7 +147,7 @@ android {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
             universalApk false  // If true, also generate a universal APK
-            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+            include  'armeabi-v7a','arm64-v8a','x86','x86_64'
         }
     }
     signingConfigs {
@@ -174,6 +180,7 @@ android {
             signingConfig signingConfigs.release 
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            shrinkResources true
         }
     }
 
@@ -208,7 +215,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':react-native-push-notification')
     //noinspection GradleDynamicVersio              
-    implementation 'com.google.firebase:firebase-analytics:17.2.2'                                                 
+    implementation 'com.google.firebase:firebase-analytics:17.4.3'                                                 
 
     implementation "com.facebook.react:react-native:+"  // From node_modules
 

@@ -30,15 +30,14 @@ export default class Splash extends Component {
           }, 3000);
 
           AsyncStorage.getItem("personDetails").then(dtr => {
-            dtr = JSON.parse(dtr);
-            console.log("ERROR: ", dtr);
-            this.setState({
-              password:  dtr.password,
-              regno: dtr.regno,
-              PersonDetails: dtr
-              
-            }) 
-       
+            if(dtr) {
+              dtr = JSON.parse(dtr);
+              this.setState({
+                password:  dtr?.password,
+                regno: dtr?.regno,
+                PersonDetails: dtr
+              });
+            }
           })
 
     }

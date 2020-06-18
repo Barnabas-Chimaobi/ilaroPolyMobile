@@ -22,16 +22,17 @@ class Lecture extends Component {
   };
   state = {
     showIndicator: false,
-    selectedCourseText: null,
+    selectedCourseText: '',
     courses: [],
     semesterText: ['', 'First Semester', 'Second Semester', 'Third Semester'],
     semesters: [0, 1, 2, 3],
     newCourse: 0,
-    newSemester: null,
+    newSemester: '',
     contentList: [],
-    courseCode: null,
+    courseCode: "",
+    values: "",
     PersonDetails: {
-      Id: null,
+      Id: '',
       FirstName: null,
       OtherName: null,
       FullName: null,
@@ -39,17 +40,8 @@ class Lecture extends Component {
     },
   };
 
-  componentDidMount() {
-    //Method 1: The prop Way
-    const {state, setParams, navigate} = this.props.navigation;
-    const params = state.params || {};
-    this.setState({
-      PersonDetails: params.PersonDetails,
-    });
-  }
-
   onButtonPress = () => {
-    if (this.state.selectedCourseText !== null && this.state.newSemester === this.state.newSemester) {
+    if (this.state.selectedCourseText !== "" && this.state.newSemester === this.state.newSemester) {
       this.setState({showIndicator: true});
     } else {
       this.setState({showIndicator: false});
@@ -66,6 +58,18 @@ class Lecture extends Component {
     }, 15000)
   };
 
+  componentDidMount() {
+    //Method 1: The prop Way
+    const {state, setParams, navigate} = this.props.navigation;
+    const params = state.params || {};
+    // console.log(params, ': RRRRRRR');
+
+    // console.log(params.PersonDetails.Id, ':GGGGGGGG');
+
+    this.setState({
+      PersonDetails: params.PersonDetails,
+    });
+  }
 
   collectCourses = (value) => {
     if (typeof value === 'number' && value > 0) {
@@ -77,7 +81,8 @@ class Lecture extends Component {
             courses: [...response1.Output],
             showIndicator: false,
           });
-          // console.log('ghhj:', response1);
+          console.log('ghhjdddddddd:', this.state.courses);
+
         })
         .catch((err) => {
           console.log(err);
@@ -98,17 +103,16 @@ class Lecture extends Component {
           };
         });
 
-        newArray === ''
+        newArray == ''
           ? Alert.alert('there is no study material for this course')
-          : null 
-          // console.log(newArray, ', ARRAY');
+          : console.log(newArray, ', ARRAY');
 
         this.setState({
           contentList: newArray,
           showIndicator: false,
         });
 
-        // console.log(this.state.newCourse, ':NEWCOUSERjjjjj');
+        console.log(this.state.newCourse, ':NEWCOUSERjjjjj');
         const {state, setParams, navigate} = this.props.navigation;
         const params = state.params || {};
         this.props.navigation.navigate('CourseContent', {
@@ -139,30 +143,66 @@ class Lecture extends Component {
     if (this.state.courses == '') {
       return <Picker.Item label={`Select Course`} color="green"/>;
     } else {
-      return this.state.courses.map((y, z) => {
-        if(z === 0){
-          return <Picker.Item label={`Select Course`} color="green"/>;
-        }
-        else {
-          return (
-            <Picker.Item
-              style={styles.pitem}
-              label={y.CourseName}
-              key={z}
-              value={y.CourseId}
-            />
-          );
-        }
+      const dummyObject = {
+        CourseName: "Select Course",
+        CourseAllocationId: null,
+        CourseCode: null,
+        CourseId: 0
+      };
+
+      if(!this.state.courses.find(course => course.CourseId === 0)) {
+        this.state.courses.unshift(dummyObject);
+        // this.state.courses = this.state.courses.reverse();
+      }
+
+      let reMap = this.state.courses.map((y, z) => {
+        return (
+          <Picker.Item
+            style={styles.pitem}
+            label={y.CourseName}
+            key={z}
+            value={y.CourseId}
+          />
+        );
       });
+
+      return reMap;
     }
+    
   };
+
+
+  // courseList = () => {
+  //   if (this.state.courses == '') {
+  //     return <Picker.Item label={`Select Course`} color="green"/>;
+  //   } else {
+  //     return this.state.courses.map((y, z) => {
+  //       if(z == 0){
+  //         return <Picker.Item label={`Select Course`} color="green"/>;
+  //       }
+  //       else {
+  //         return (
+  //           <Picker.Item
+  //             style={styles.pitem}
+  //             label={y.CourseName}
+  //             key={z}
+  //             value={y.CourseId}
+              
+  //           />
+            
+  //         );
+  //       }
+  //     });
+  //   }
+    
+  // };
 
   semesterList = () => {
     return this.state.semesters.map((y, z) => {
       if (z === 0) {
         return <Picker.Item label={`Select Semester`} key={z} value={y} color="green"/>;
       } else {
-        // console.log(`SEmester: ${this.state.semesterText[z]}`);
+        console.log(`SEmester: ${this.state.semesterText[z]}`);
         return (
           <Picker.Item label={this.state.semesterText[z]} key={z} value={y} />
         );
@@ -252,14 +292,16 @@ class Lecture extends Component {
             <Picker
               style={styles.picker2}
               selectedValue={this.state.newCourse}
-              onValueChange={(value) => {
+              onValueChange={(values) => {
+                this.state.courses && this.state.courses !== null?
                 this.setState({
-                  newCourse: value,
+                  newCourse: values,
                   selectedCourseText: this.state.courses.find(
-                    (c) => c.CourseId === value,
-                  ).CourseName,
-                });
-              }}>
+                    c => c.CourseId)?.CourseName
+                }): null
+
+              }}
+              >
               {this.courseList()}
             </Picker>
           </View>
@@ -275,8 +317,8 @@ class Lecture extends Component {
                 onPress={() => {
                   this.onButtonPress();
                   this.viewCourseContent();
-                  // console.log('CCCCCCCCCC:', this.state.PersonDetails?.Id),
-                    // console.log('DDDD:', this.state.newCourse);
+                  console.log('CCCCCCCCCC:', this.state.PersonDetails?.Id),
+                    console.log('DDDD:', this.state.newCourse);
                 }}>
                 <Text
                   style={{

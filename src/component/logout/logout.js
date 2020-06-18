@@ -63,42 +63,43 @@
 // export default Logout;
 
 import React, { useEffect } from "react";
-import { Text, View, StyleSheet, BackHandler, Alert, TouchableWithoutFeedback } from "react-native";
+import { Text, View, StyleSheet, BackHandler, Alert, TouchableWithoutFeedback , AsyncStorage, Button} from "react-native";
 
 export default function App(props) {
   useEffect(() => {
-    const backAction = () => {
-      // Alert.alert("Exit", "Exiting Application?", [
-      //   {
-      //     text: "Cancel",
-      //     onPress: () => null,
-      //     style: "cancel"
-      //   },
-      //   { text: "YES", onPress: () => BackHandler.exitApp() }
-      // ]);
-      BackHandler.exitApp()
-      return true;
-    };
-
     const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backAction
+      "hardwareBackPress",backAction
     );
 
     return () => backHandler.remove();
   }, []);
 
+  const backAction = () => {
+    Alert.alert("Exit", "Exiting Application?", [
+      {
+        text: "Cancel",
+        onPress: () => props.navigation.navigate("Dashboard"),
+        style: "cancel"
+      },
+      { text: "YES", onPress: () =>{ BackHandler.exitApp(),  AsyncStorage.clear()}}
+    ]);
+    BackHandler.exitApp
+    return true;
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>You Are Currently Logged Out of This App</Text>
-      <Text>To Continue Using The App, Pls Sign In</Text>
-      <TouchableWithoutFeedback 
-       onPress={()=>{
-         props.navigation.navigate("Login")
-       }}
-      >
-        <Text>Sign In</Text>
+      <View >
+      <Text style={styles.text}>You Are About Logging out of this App</Text>
+      <Text style={{textAlign: "center",margin: 5}}>When logged out, you will need to sign in again in order to Continue using all features of this app</Text>
+      <View style={{ marginTop: 15, backgroundColor: "green",marginLeft:"30%", marginRight: "30%",height: 40, elevation: 10}}>
+      <TouchableWithoutFeedback onPress={()=>{backAction()}}>
+        <Text style={{textAlign: "center", color: "white", fontSize: 18, paddingTop:7}}>Proceed</Text>
       </TouchableWithoutFeedback>
+      </View>
+
+      </View>
+     
 
     </View>
   );
@@ -108,10 +109,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    backgroundColor: "#DFE9DA",
   },
   text: {
+    textAlign: "center",
     fontSize: 18,
-    fontWeight: "bold"
+    fontWeight: "bold",
+    color: "black"
   }
 });

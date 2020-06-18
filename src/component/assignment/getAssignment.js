@@ -51,7 +51,7 @@ class GetAssignment extends Component {
     const params = state.params || {};
 
     fetch(
-      `http://applications.federalpolyilaro.edu.ng/api/e_learning/AssignmentByCategory?personId=${params.PersonDetails.Id}`,
+      `https://applications.federalpolyilaro.edu.ng/api/e_learning/AssignmentByCategory?personId=${params.PersonDetails.Id}`,
     )
       .then((response) => response.json())
       .then((Data) => {

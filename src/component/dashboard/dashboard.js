@@ -13,7 +13,8 @@ import {
   Alert,
   BackHandler,
   Button, 
-  AsyncStorage
+  AsyncStorage,
+  AppRegistry
   // TouchableWithoutFeedbackBase
 } from 'react-native';
 import {Root} from 'native-base'
@@ -42,41 +43,27 @@ class Dashboard extends Component {
       firebase_messaging_message: '',
       firebase_notification: '',
       firebase_send: '',
-      newAssignment: null
+      newAssignment: null,
+      compareAssignment: null
     };
-  }
 
-  handleBackButton = () => {
-    BackHandler.exitApp()
-    return true;
-};
-
-
-compareAndContrast = (newArray, existingArray) => {
-  const missings = [];
-  const matchesArray = [];
-  let matches = false;
-
-  for ( let i = 0; i < newArray.length; i++ ) {
-      matches = false;
-      for ( let e = 0; e < existingArray.length; e++ ) {
-          if ( newArray[i]?.Id === existingArray[e]?.Id ) {
-            matches = true;
-            matchesArray.push(newArray[i]);
-            return matchesArray;
-          } else if(!matches) missings.push( newArray[i] );{
-          
-       return missings;
-          }
-      }
-     
-  }
 }
- componentDidMount() {
+
+async componentDidMount() {
+  let currentList = await AsyncStorage.getItem("currentAssignmentList");
+  if(!currentList) {
+    await AsyncStorage.setItem("currentAssignmentList", "[]");
+    currentList= await AsyncStorage.getItem("currentAssignmentList");
+  }
+
+  console.log("CURR_LIST: ", currentList);
+
   BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
   this.createNotificationChannel();
   this.checkNotificationPermissions();
   this.addNotificationListeners();
+  this.sendAssignmentToFirebase()
+  // this.sendToServer()
   this.setState({showIndicator: false});
 
   BackgroundFetch.configure({
@@ -87,35 +74,76 @@ compareAndContrast = (newArray, existingArray) => {
   }, async (taskId) => {
 
     console.log("Received background-fetch event: " + taskId);
-    
     /* process background tasks */
-    this.sendAssignmentToFirebase()
+    this.sendAssignmentToFirebase();
     this.sendToServer()
-    
+
     BackgroundFetch.finish();
   }, (error) => {
     console.log("RNBackgroundFetch failed to start");
-  });
-
-  // BackgroundFetch.registerHeadlessTask(this.sendAssignmentToFirebase());
-
-  this.sendAssignmentToFirebase()
-  this.sendToServer()
-  
-  AsyncStorage.getItem("Assignments").then(dtr => {
-    dtr = JSON.parse(dtr);
-    console.log("ERROR: ", dtr)
-
   })
-
+  // AppRegistry.registerHeadlessTask( 'RNFirebaseBackgroungMessage', () => this.sendToServer());
+  
+  const assign = await AsyncStorage.getItem("currentAssignmentList");
+  const dtr = JSON.parse(assign);
+  console.log("ERROR: ", dtr);
 }
+
+
+  handleBackButton = () => {
+    BackHandler.exitApp()
+    return true;
+ };
+
+
+// compareAndContrast = (newArray, existingArray) => {
+//   const missings = [];
+//   const matchesArray = [];
+//   let matches = false;
+   
+//   for ( let i = 0; i < newArray.length; i++ ) {
+//       matches = false;
+//       for ( let e = 0; e < existingArray.length; e++ ) {
+//           if ( newArray[i]?.Id === existingArray[e]?.Id ) {
+//             matches = true;
+//             matchesArray.push(newArray[i]);
+//             return matchesArray;
+//           } else if(!matches) missings.push( newArray[i] );{          
+//        return missings;
+//           }
+//       }
+     
+//   }
+// }
+
+ compareAndContrast(newArray, existingArray) {
+  const missings = [];
+  const matchesArray = [];
+  let matches = false;
+
+  for ( let i = 0; i < newArray.length; i++ ) {
+      matches = false;
+      for ( let e = 0; e < existingArray.length; e++ ) {
+          if (  newArray[i]?.Id === existingArray[e]?.Id ) {
+            matches = true;
+            matchesArray.push(newArray[i]);
+          }
+      }
+      if(!matches) missings.push( newArray[i] );
+  }
+
+  console.log(matchesArray);
+  return missings;
+}
+
+
 
 componentWillUnmount() {
 
       // this.notificationListener();
     // this.notificationOpenedListener();
     this.removeNotificationListeners();
-BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton())
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton())
 }
 
   alert = (item) => {
@@ -246,97 +274,112 @@ BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton())
     this.tokenRefreshListener;    
   }
   
-  sendAssignmentToFirebase = async () => {
+  sendAssignmentToFirebase = async () => {  
     const {state, setParams, navigate} = this.props.navigation;
     const params = state.params || {};
-    console.log("0personid:", this.state.passwords)
     const response = await fetch(
-      `http://applications.federalpolyilaro.edu.ng/api/e_learning/AssignmentByCategory?personId=${params.PersonDetails.Id}`,
+      `https://applications.federalpolyilaro.edu.ng/api/e_learning/AssignmentByCategory?personId=${params.PersonDetails.Id}`,
     );
-    // let response = {
-    //         "Assignment":"this course",
-    //         "CourseCode":"ACC419",
-    //         "CourseName":"Accounting",
-    //         "DateSet" : "0002-02-01T000:00:00",
-    //         "DueDate" : "2020-05-31T17:00:00",
-    //         "Id" : 20916,
-    //         "SubmittedAssignmentScore" : "",
-    //         "SunmittedAssignmentUrl" : "",
-    //         "URL" : "",
-
-    //    },
-       
     
     let resToJson = await response.json();
-    console.log(resToJson, "RESSSSSSSSSSSSSSSSSSS")
+    console.log(resToJson, "RESSSSSSSSSSSSSSSSSSS");
 
      //Save the returned assignments to async storage
 
-    let assignmentLoad = await AsyncStorage.getItem("Assignments");
+    let assignmentLoad = await AsyncStorage.getItem("currentAssignmentList");
     let assignmentLoads = JSON.parse(assignmentLoad);
     console.log(assignmentLoads, "DOMMMMY ASSIGNMENT DATA")
-    const unNotSubmittedAssignmentsUserDoesNotHave = 
-    this.compareAndContrast(resToJson.Output.NotSubmittedAssignment, assignmentLoads.Output.NotSubmittedAssignment);
-    console.log(`New Unsubmitted Assignments From API:`, unNotSubmittedAssignmentsUserDoesNotHave);
-    await AsyncStorage.setItem("CurrentAssignmentList", JSON.stringify(resToJson));
+    console.log(assignmentLoad, "ASSIGNMENT DATAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 
-   const newAssignments = unNotSubmittedAssignmentsUserDoesNotHave.map((item) => {
-   return `${item.CourseCode}  ${item.CourseName}`
-   
-   })
+    if(assignmentLoads) {
+      const currentUnsubmittedAssignments = assignmentLoads?.Output ? assignmentLoads.Output.NotSubmittedAssignment : [];
+      const unNotSubmittedAssignmentsUserDoesNotHave = 
+      this.compareAndContrast(resToJson.Output.NotSubmittedAssignment, currentUnsubmittedAssignments);
+      console.log(`New Unsubmitted Assignments From API:`, unNotSubmittedAssignmentsUserDoesNotHave);
+      await AsyncStorage.setItem("currentAssignmentList", JSON.stringify(resToJson));
+  
+      const storageData = await AsyncStorage.getItem("currentAssignmentList");
+      console.log("STData----", JSON.parse(storageData));
 
-   this.setState({
-    newAssignment: newAssignments
-  })
+      const newAssignments = unNotSubmittedAssignmentsUserDoesNotHave.map((item) => {
+        return `${item.CourseCode}  ${item.CourseName}`
+       })
+    
+       this.setState({
+        newAssignment: newAssignments.length
+      });
 
-  console.log(this.state.newAssignment, "NEWWWWWWWWWWWWWWWWWWWWASSS")
-  console.log(resToJson)
+      console.log(this.state.newAssignment, "NEWWWWWWWWWWWWWWWWWWWWASSS")
+    }
+
+
+
+//   const checkAsync =await AsyncStorage.getItem("newAssingmentToCheck")
+//   const res = JSON.parse(checkAsync);
+//   const newAssignmentToCheck = res.map((item) => {
+//    return `${item.CourseCode}  ${item.CourseName}`
+//    })
+ 
+// this.setState({
+//  compareAssignment: newAssignmentToCheck
+// })
+//  console.log(newAssignmentToCheck, ":AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 
     return resToJson;
-
-  
   }
   
   sendToServer = async(str) => {
-    const firebase_server_key = 'AAAAfImolUU:APA91bGL7RnddnrKqmSBmnayL_BrpWM7M4eIsIeD3VxB3peT7Da3B0xwhXnIx3LNBuzALvAIweXK4THS72AfXVbJ01EaVw2h0LMsPMtwPinhNoLff69lim38-61fLr1cMWFyF6TE_dBs';
+    if(this.state.newAssignment > 0) {
+    const firebase_server_key = 'AAAAfImolUU:APA91bHOdjPtbmBn2z3kSSaFhCJdisGOhY5QA33CEGC9e_-rlGlADHuSJFkvWbOcmNwh15jOB0fb74iWj7HnmF26mTlhcVnuNzaj7d4IxNNzrwzwzM0QkVcISgQhoRGZdt-NK9ErWGct';
     console.log("sendToServer");
     console.log(str);
  
     // SEND NOTIFICATION THROUGH FIREBASE
     // Workflow: React -> Firebase -> Target Devices
- 
-    fetch('https://fcm.googleapis.com/fcm/send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'key=' + firebase_server_key,
+
+  fetch('https://fcm.googleapis.com/fcm/send', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',   
+      Authorization: 'key=' + firebase_server_key,
+    },
+    body: JSON.stringify({
+      "registration_ids":[
+        this.state.firebase_messaging_token
+      ],
+      "data": {
+        "title":"New Assignment Available",
+        // "body": this.state.newAssignment
+        "icon":"icon1",
+        color : "green",
+        "body": `${this.state.newAssignment} New Assignment/s`,
+        "sound":"default", //If you want notification sound,
+        vibrate: 300,      // Android only default: 300, no vibration if you pass 0
       },
-      body: JSON.stringify({
-        "registration_ids":[
-          this.state.firebase_messaging_token
-        ],
-        "data": {
+      "notification": {
           "title":"New Assignment Available",
           // "body": this.state.newAssignment
-          "body": this.state.newAssignment
-        },
-        "notification": {
-            "title":"New Assignment Available",
-            // "body": this.state.newAssignment
-            "body": this.state.newAssignment
-        },
-      }),
-    })
-    .then((response) => {
-      console.log("Request sent!");
-      console.log(response);
-      console.log("FCM Token: " + this.state.firebase_messaging_token);
-      console.log("Message: " + str);
-      this.setState({ firebase_send: '' });
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+          "icon":"icon1",
+          color : "green",
+          "body": `${this.state.newAssignment} New Assignment/s`,
+          "sound":"default", //If you want notification sound
+           vibrate: 500,     // Android only default: 300, no vibration if you pass 0
+      },
+      "priority":"high", 
+    }),
+  })
+  .then((response) => {
+    console.log("Request sent!");
+    console.log(response);
+    console.log("FCM Token: " + this.state.firebase_messaging_token);
+    console.log("Message: " + str);
+    this.setState({ firebase_send: '' });
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+ 
+}
   }
 
 
@@ -540,15 +583,14 @@ BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton())
            </View>
         
          </TouchableWithoutFeedback>
-         <Button onPress={async() =>await this.sendAssignmentToFirebase()} title="save assignment" />
-         <Button onPress={() => this.sendToServer(this.state.firebase_send)} title="Send and Receive" />
+         {/* <Button onPress={async() =>await this.sendAssignmentToFirebase()} title="save assignment" /> */}
+         {/* <Button onPress={() => this.sendToServer(this.state.firebase_send)} title="Send and Receive" /> */}
      
       </DrawerLayoutAndroid>
       
     );
   }
 }
-
 export default Dashboard;
 
 const styles = StyleSheet.create({

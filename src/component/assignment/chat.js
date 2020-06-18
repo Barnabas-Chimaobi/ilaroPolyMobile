@@ -95,7 +95,7 @@ const Apps = (props) => {
 
   const loadChatMessages = async () => {
     const response = await fetch(
-      `http://applications.federalpolyilaro.edu.ng/api/e_learning/EnterChatRoom?courseAllocationId=${sampleCourseAllocation}&personId=${PersonId}`,
+      `https://applications.federalpolyilaro.edu.ng/api/e_learning/EnterChatRoom?courseAllocationId=${sampleCourseAllocation}&personId=${PersonId}`,
       {method: 'GET'},
     );
 
@@ -231,8 +231,8 @@ const Apps = (props) => {
               style={{color: 'white', fontSize: 27, marginLeft: 15}}
             />
           </TouchableWithoutFeedback>
-          <Text style={{fontSize: 22, color: 'white', marginLeft: 20}}>
-            Back
+          <Text style={{fontSize: 17, color: 'white', marginLeft: 20}}>
+            {params.CName}
           </Text>
         </View>
       </View>

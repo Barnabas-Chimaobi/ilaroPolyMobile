@@ -5,13 +5,14 @@ import {
   StyleSheet,
   DrawerLayoutAndroid,
   TouchableNativeFeedback,
-  Picker,
   TextInput,
   TouchableOpacity,
   AsyncStorage,
   Alert,
-  Image
+  Image,
+  Picker
 } from 'react-native';
+// import {Picker} from '@react-native-community/picker';
 import Spinner from 'react-native-loading-spinner-overlay';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Menu from '../drawer/menu';
@@ -206,22 +207,6 @@ class EnterChat extends Component {
             </Picker>
           </View>
 
-          {/* <View style={styles.textInputWrapper}>
-            <TextInput style={styles.textInput} />
-            <Picker
-              style={styles.picker2}
-              selectedValue={this.state.newCourse}
-              onValueChange={(value) => {
-                this.setState({
-                  newCourse: value,
-                  selectedCourseText: this.state.courses.find(
-                    (c) => c.CourseId === value,
-                  ).CourseName,
-                });
-              }}>
-              {this.courseList()}
-            </Picker>
-          </View> */}
             <Spinner
               color={'green'}
               //visibility of Overlay Loading Spinner
