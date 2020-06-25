@@ -10,8 +10,14 @@ import {
   TouchableOpacity,
   TouchableNativeFeedback,
   Linking,
+  DrawerLayoutAndroid,
+  Alert
 } from 'react-native';
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
+import Menu from "../drawer/menu"
+// import FullScreen, {ToggleView} from 'react-native-full-screen'
+import { Immersive } from 'react-native-immersive'
+
 // import { TouchableHighlight } from "react-native-gesture-handler"
 
 class ViewAssignment extends Component {
@@ -21,11 +27,23 @@ static navigationOptions = {
 
   constructor(props) {
     super(props);
+
+    this.setImmersiveOn = () => {
+      Immersive.on()
+      this.setState({ isImmersive: true })
+    }
+    this.setImmersiveOff = () => {
+      Immersive.off()
+      this.setState({ isImmersive: false })
+    }
+
     this.state = {
       personId: '',
       CourseId: [],
       date: "",
-      newDate: ""
+      newDate: "",
+      isImmersive: false,
+
     };
   }
 
@@ -64,6 +82,20 @@ static navigationOptions = {
     this.formatFullDate()
   }
 
+
+  alert = (item) => {
+    alert(item);
+  };
+  openDrawer = () => {
+    this.drawer.openDrawer();
+  };
+
+  closeDrawer = () => {
+    this.drawer.closeDrawer();
+  };
+
+
+
   render() {
     const activeStyle = {
       borderTopWidth: 5,
@@ -89,12 +121,27 @@ static navigationOptions = {
     const mainUrl = `${API_ROOT}${url.substring(2, url.length)}`;
     console.log(mainUrl);
 
+    const extension = url.substring(url.lastIndexOf(".") + 1)
+    console.log(extension, ":EXTENSIONNNNNN")
+
     const dt = new Date(this.state.date);
     const yeah = dt.toDateString()
     console.log(yeah)
 
+
     return (
-      <ScrollView>
+      <DrawerLayoutAndroid
+      drawerWidth={260}
+      drawerPosition="left"
+        renderNavigationView={() => (
+          <Menu
+            navigation={this.props.navigation}
+            closeDrawer={this.closeDrawer}
+          />
+        )}
+        ref={(_drawer) => {
+          this.drawer = _drawer;
+        }}>
                      <View style={styles.headerWrapper}>
         <View style={styles.headerWrapper1}>
           <TouchableNativeFeedback
@@ -118,14 +165,14 @@ static navigationOptions = {
             style={{marginTop:10, marginRight:8}}
           />
           <View>
-              
-          <Text>{params.finds.Assignment}</Text>
+          <Text style={{fontWeight: "bold", marginBottom: 5, color: "black", width: "85%"}}>{params.finds.CourseCode}- {params.finds.CourseName}</Text>
+          <Text style={{fontFamily:"sans-serif-light", fontSize:13, width:"75%", color: "black"}}>{params.finds.Assignment.toUpperCase()}</Text>
           <View style={{flexDirection: "row"}}>
                     <Image
                     source={require("../../assets/schedule.png")}
                     style={{marginRight: 5}}
                     />
-                  <Text>{this.state.newDate}</Text>
+                  <Text style={{fontFamily:"sans-serif-light", color: "black"}}>{this.state.newDate}</Text>
 
                   </View>
           </View>
@@ -133,26 +180,59 @@ static navigationOptions = {
             
           </View>
            <View style={{marginLeft:15, marginRight: 15}}>
-             <View style={{flexDirection: "row", borderWidth: 0.5, height: 50, padding: 5, borderColor: "gray"}}>
+             <View style={{flexDirection: "row", borderWidth: 0.5, height: 60, padding: 5, borderColor: "gray"}}>
              <Image source={require("../../assets/instruction.png")}/>
-           <Text style={{marginLeft:5,}}>
+             <ScrollView>
+             <Text style={{marginLeft:5,width:"90%", textTransform:"capitalize", color: "black"}}>
             {params.finds.instruction1}
-          </Text>
+              </Text>
+             </ScrollView>
+     
              </View>
-         
-          <Text style={{borderWidth: 0.5, height: 350, marginTop: 10, padding:5}}>
+             <View style={{borderWidth: 0.5, height: 320, marginTop: 10, padding:5,}}>
+            <ScrollView >
+            <Text style={{ textTransform: "capitalize", color: "black" }}>
             {params.finds.Text}
           </Text>
+          </ScrollView>
+          
+         </View>
+         <TouchableWithoutFeedback onPress={()=>{
+           this.props.navigation.navigate("FullScreenView", {finds: params.finds})
+         }}>
+            <View style={{flexDirection:"row",justifyContent:"flex-end"}}>
+            <MaterialIcons
+              name="fullscreen"
+              style={{ fontSize: 27, marginLeft: 15}}
+            />
+            <Text style={{marginTop: 5}}>FullScreen</Text>
+              </View>
+           </TouchableWithoutFeedback>
+
+         
+  
            </View>
        
           <View style={{flexDirection: "row", justifyContent: "space-between", margin:16}}>
-            <TouchableOpacity
-              onPress={() => {
-                Linking.openURL(mainUrl), console.log(mainUrl);
-              }}>
-              <Text style={styles.itemlink}>View PDF</Text>
-            </TouchableOpacity>
-
+            {extension != "pdf" ?
+                <TouchableOpacity
+                onPress={() => {
+                  Alert.alert("There is no Uploaded File to view")
+                  // Linking.openURL(mainUrl), console.log(mainUrl);
+                }}>
+                <Text style={styles.itemlink}>View PDF</Text>
+              </TouchableOpacity>
+              :
+                  <TouchableOpacity
+                  onPress={() => {
+                    Linking.openURL(mainUrl), console.log(mainUrl);
+                  }}>
+                  <Text style={styles.itemlink}>View PDF</Text>
+                </TouchableOpacity>
+    
+  
+          }
+        
         <TouchableHighlight
           onPress={() => {
             // this.remapp(item.Id);
@@ -166,7 +246,8 @@ static navigationOptions = {
           </View>
         </View>
 
-      </ScrollView>
+    
+    </DrawerLayoutAndroid>
     );
   }
 }

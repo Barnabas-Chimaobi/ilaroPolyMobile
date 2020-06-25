@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "534885471557",
+    "firebase_url": "https://fpi-e-learning.firebaseio.com",
+    "project_id": "fpi-e-learning",
+    "storage_bucket": "fpi-e-learning.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:534885471557:android:88995e99016a93cd171a2c",
+        "android_client_info": {
+          "package_name": "com.ilaromobile1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "534885471557-ttkf4hovr9ru5g36hug4iqcatkm5tcs6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUn4fAux1nDsCtxW14NawgxWxuMGke_m4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "534885471557-ttkf4hovr9ru5g36hug4iqcatkm5tcs6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

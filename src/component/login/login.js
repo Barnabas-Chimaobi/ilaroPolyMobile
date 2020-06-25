@@ -10,9 +10,20 @@ import {
   Alert,
   Switch,
   ActivityIndicator,
+  Button
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {Icon, Text, Label, Input, Item} from 'native-base';
+import {
+  Container,
+  Header,
+  Content,
+  ListItem,
+  Text,
+  Body,
+  Icon,
+  CheckBox
+} from 'native-base';
+// import RemotepushController from "../services/RemotepushController"
 import Menu from '../drawer/menu';
 import Dashboard from '../dashboard/dashboard';
 import {Formik} from 'formik';
@@ -33,6 +44,13 @@ export default class StudentLogin extends Component {
       password: true,
       icon: 'eye-off',
       newArrayField: [],
+      rememberMe: false,
+      checked: false,
+      firebase_messaging_token: '',
+      firebase_messaging_message: '',
+      firebase_notification: '',
+      firebase_send: '',
+      passwords: ""
     };
   }
 
@@ -55,6 +73,11 @@ export default class StudentLogin extends Component {
     } else {
       this.setState({showIndicator: false});
     }
+    setTimeout(() => {
+      this.setState({
+        showIndicator: false,
+      });
+    }, 25000);
   };
   //  resetLoader = () => {
   //    if(this.state.newArrayField !== ""){
@@ -72,48 +95,76 @@ export default class StudentLogin extends Component {
       )
         .then((data) => data.json())
         .then((newData) => {
-          this.setState((prevState) => ({
-            newArrayField: prevState.newArrayField.concat(newData),
-          }));
+          //  console.log("NEW DATA: ", newData);
+          if (newData.OutPut) {
+            this.setState((prevState) => ({
+              newArrayField: prevState.newArrayField.concat(newData),
+            }));
 
-          const mappedArray = this.state.newArrayField.map((item) => {
-            return {
-              FullName: item.OutPut.FullName,
+            const mappedArray = this.state.newArrayField.map((item) => {
+              // console.log("ITEM: ", item);
+              return {
+                FullName: item.OutPut.FullName,
+              };
+            });
+
+            const API_ROOT = 'https://applications.federalpolyilaro.edu.ng';
+            const {
+              Id,
+              FirstName,
+              LastName,
+              OtherName,
+              ImageFileUrl,
+            } = newData.OutPut.Student.ApplicationForm.Person;
+            const MatricNumber = newData.OutPut.Student.MatricNumber;
+            const Levels = newData.OutPut.Level.Name;
+            const Department = newData.OutPut.Department.Name;
+            const Faculty = newData.OutPut.Department.Faculty.Name;
+            const Session = newData.OutPut.Session.Name;
+            const password = this.state.password
+            const regno    = this.state.regno
+
+            const PersonDetails = {
+              Id,
+              FirstName,
+              LastName,
+              OtherName,
+              FullName: `${FirstName} ${LastName} ${OtherName}`,
+              ImageFileUrl: `${API_ROOT}${ImageFileUrl}`,
+              MatricNumber,
+              Levels,
+              Department,
+              Faculty,
+              Session,
+              password,
+              regno
             };
+            this.setState({
+            showIndicator: false,
+            passwords: PersonDetails.Id
           });
 
-          const API_ROOT = 'https://applications.federalpolyilaro.edu.ng';
-          const {
-            Id,
-            FirstName,
-            LastName,
-            OtherName,
-            ImageFileUrl,
-          } = newData.OutPut.ApplicationForm.Person;
-          const {MatricNumber} = newData.OutPut;
+            console.log(PersonDetails, ":PERSONDETAILSSSSSSS")
 
-          const PersonDetails = {
-            Id,
-            FirstName,
-            LastName,
-            OtherName,
-            FullName: `${FirstName} ${LastName} ${OtherName}`,
-            ImageFileUrl: `${API_ROOT}${ImageFileUrl}`,
-            MatricNumber,
-          };
-          this.setState({showIndicator: false});
+            AsyncStorage.setItem(
+              'personDetails',
+              JSON.stringify(PersonDetails),
+            );
 
-          AsyncStorage.setItem('personDetails', JSON.stringify(PersonDetails));
-
-          this.props.navigation.navigate('Dashboard', {
-            mappedArray: mappedArray,
-            PersonDetails,
-          });
-          this.setState({regno: ''});
-          this.setState({password: ''});
+            this.props.navigation.navigate('Dashboard', {
+              mappedArray: mappedArray,
+              PersonDetails,
+            });
+            this.setState({regno: ''});
+            this.setState({password: ''});
+          } else {
+            Alert.alert('Incorrect User details');
+            this.setState({showIndicator: false});
+            return;
+          }
         })
         .catch((err) => {
-          console.log(err, 'there was an error');
+          console.error(err, 'there was an error');
         });
     } else {
       Alert.alert('please fill complete log in details');
@@ -126,6 +177,77 @@ export default class StudentLogin extends Component {
     };
   }
 
+  toggleRememberMe = (value) => {
+
+    this.setState({
+      rememberMe: !this.state.rememberMe
+  });
+
+   if(!this.state.rememberMe){
+     this.rememberUser()
+   }else{
+     this.forgetUser()
+   }
+    // this.setState({rememberMe: value});
+    // if (value == true) {
+    //   //user wants to be remembered.
+    //   this.rememberUser();
+    // } else {
+    //   this.forgetUser();
+    // }
+  };
+
+  rememberUser = async () => {
+    try {
+      await AsyncStorage.setItem('REG_NO', this.state.regno);
+    } catch (error) {
+      // Error saving data
+    }
+  };
+
+  getRememberedUser = async () => {
+    try {
+      const regno = await AsyncStorage.getItem('REG_NO');
+      if (regno !== null) {
+        // We have username!!
+        return regno;
+      }
+    } catch (error) {
+      // Error retrieving data
+    }
+  };
+
+  forgetUser = async () => {
+    try {
+      await AsyncStorage.removeItem('REG-NO');
+    } catch (error) {
+      // Error removing
+    }
+  };
+
+  async componentDidMount() {
+    const regno = await this.getRememberedUser();
+    this.setState({
+      regno: regno || '',
+      rememberMe: regno ? true : false,
+    });
+   
+    // setInterval(() => {
+    //   this.sendToServer()
+    // })
+  }
+
+
+// showAlert(title, body) {
+// Alert.alert(
+//   title, body,
+//   [
+//       { text: 'OK', onPress: () => console.log('OK Pressed') },
+//   ],
+//   { cancelable: false },
+// );
+// }
+
   render() {
     // const gotten = this.state.newArrayField.map(item => {
     //   return {
@@ -135,30 +257,36 @@ export default class StudentLogin extends Component {
     //   };
     // });
 
+    
+
     return (
       <View style={styles.container}>
         <ScrollView>
           <Image
             source={require('../../assets/ilarologo.jpeg')}
             style={{
-              marginTop: "30%",
+              marginTop: '30%',
               width: 200,
               height: 180,
               alignSelf: 'center',
-              marginBottom: -18
+              marginBottom: -18,
             }}
           />
 
           <View style>
             <View style={styles.formWrapper}>
-              <View style={styles.titleStyle}>
-              </View>
-         
+              <View style={styles.titleStyle}></View>
+
               <View style={styles.textInputWrapper}>
-              <Icon
-                   style={{color: "gray", fontSize:23, marginTop:-10, paddingRight: 5}}
-                    name="person"
-                  />
+                <Icon
+                  style={{
+                    color: 'gray',
+                    fontSize: 23,
+                    marginTop: -10,
+                    paddingRight: 5,
+                  }}
+                  name="person"
+                />
                 <TextInput
                   style={styles.textInput1}
                   name="regno"
@@ -169,50 +297,81 @@ export default class StudentLogin extends Component {
                 />
               </View>
               <View style={styles.textInputWrapper}>
-              <Icon
-                   style={{color: "gray", fontSize:23, marginTop:10, paddingRight:5}}
-                    name="key"
-                  />
+                <Icon
+                  style={{
+                    color: 'gray',
+                    fontSize: 23,
+                    marginTop: 10,
+                    paddingRight: 5,
+                  }}
+                  name="key"
+                />
                 <TextInput
                   style={styles.textInput2}
                   name="password"
                   onChangeText={this.handleChange('password')}
                   value={this.state.password}
                   placeholder="Password"
-                  clearTextOnFocus={true}
                   secureTextEntry={this.state.showPassword}
+                  clearTextOnFocus={true}
+                  // placeholderTextColor={"red"}
                 />
-                  <Icon
-                   style={{color: "gray", fontSize:23, marginTop:15}}
-                    name={this.state.icon}
-                    onPress={() => {
-                      this.changeIcon();
-                    }}
-                  />
-                
+                <Icon
+                  style={{color: 'gray', fontSize: 20, marginTop: 15}}
+                  name={this.state.icon}
+                  onPress={() => {
+                    this.changeIcon();
+                  }}
+                />
               </View>
-                <Spinner
-                  color={'green'}
-                  //visibility of Overlay Loading Spinner
-                  visible={this.state.showIndicator}
-                  //Text with the Spinner
-                  textContent={'Logging in...'}
-                  //Text style of the Spinner Text
-                  textStyle={styles.spinnerTextStyle}
-                />
-                <View style={styles.password}>
-                  <View>
-                    <TouchableOpacity
-                      style={styles.invoiceButton}
-                      onPress={() => {
-                        this.authentication(), this.onButtonPress();
-                      }}>
-                      <Text style={styles.generateInv}>SIGN IN</Text>
-                    </TouchableOpacity>
-                  </View>
+              <Spinner
+                color={'green'}
+                //visibility of Overlay Loading Spinner
+                visible={this.state.showIndicator}
+                //Text with the Spinner
+                textContent={'Logging in...'}
+                //Text style of the Spinner Text
+                textStyle={styles.spinnerTextStyle}
+              />
+              {/* <Switch
+                value={this.state.rememberMe}
+                onValueChange={(value) => this.toggleRememberMe(value)}
+              />
+              <Text>Remember Me</Text> */}
+
+                   <View style={{flexDirection: "row", marginTop:10, marginLeft:27}}>
+                   <CheckBox
+                    checked={this.state.rememberMe} color="green"
+                     onPress={()=>{
+                        this.toggleRememberMe()
+                    }}
+                  
+
+                    />
+                 
+                      <Text style={{marginLeft:20, fontSize:15, fontFamily: "sans-serif-light"}}>Remember Me</Text>
+                 
+                   </View>
+         
+           
+               
+               
+            
+              <View style={styles.password}>
+                <View>
+                  <TouchableOpacity
+                    style={styles.invoiceButton}
+                    onPress={() => {
+                      this.authentication(), this.onButtonPress();
+                    }}>
+                    <Text style={styles.generateInv}>SIGN IN</Text>
+                  </TouchableOpacity>
                 </View>
+
+              </View>
             </View>
           </View>
+          {/* <RemotepushController/> */}
         </ScrollView>
       </View>
     );
@@ -223,7 +382,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     // flex: 1,
-    height: "100%"
+    height: '100%',
   },
 
   titleStyle: {
@@ -236,11 +395,11 @@ const styles = StyleSheet.create({
     margin: 15,
   },
   textInput1: {
-    flex:1,
-    marginTop: -18
+    flex: 1,
+    marginTop: -18,
   },
   textInput2: {
-    flex:1
+    flex: 1,
   },
   formWrapper: {
     backgroundColor: 'white',
@@ -308,5 +467,4 @@ const styles = StyleSheet.create({
     width: 50,
     alignSelf: 'flex-end',
   },
-
 });

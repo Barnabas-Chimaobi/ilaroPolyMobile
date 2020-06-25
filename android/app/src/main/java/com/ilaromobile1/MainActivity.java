@@ -2,6 +2,8 @@ package com.ilaromobile1;
 
 import com.facebook.react.ReactActivity;
 
+import com.rnfs.RNFSPackage; // <------- add package 
+
 public class MainActivity extends ReactActivity {
 
   /**
@@ -12,4 +14,6 @@ public class MainActivity extends ReactActivity {
   protected String getMainComponentName() {
     return "ilaroMobile1";
   }
+
 }
+

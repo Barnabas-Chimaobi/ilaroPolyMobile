@@ -10,9 +10,11 @@ import {
   Text,
   TouchableNativeFeedback,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   AsyncStorage,
   DrawerLayoutAndroid,
   Alert,
+  YellowBox
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -30,7 +32,7 @@ class CourseContent extends Component {
       courseId: '',
       courseContent: '',
       showIndicator: false,
-      confirmedArray: []
+      confirmedArray: [],
     };
   }
 
@@ -39,7 +41,10 @@ class CourseContent extends Component {
       this.setState({showIndicator: true});
     } else {
       this.setState({showIndicator: false});
-    }
+    };
+    setTimeout(()=>{
+      this.setState({showIndicator: false})
+    }, 15000)
   };
 
   componentDidMount() {
@@ -51,6 +56,11 @@ class CourseContent extends Component {
     this.setState({
       courseId: courseIds,
     });
+
+    YellowBox.ignoreWarnings([
+      'VirtualizedLists should never be nested', // TODO: Remove when fixed
+    ])
+    
   }
 
   alert = (item) => {
@@ -88,14 +98,15 @@ class CourseContent extends Component {
             VideoUrl: newData.VideoUrl,
             StartTime: newData.StartTime,
             StopTime: newData.StopTime,
-            LiveStream: newData.LiveStreamingLink
+            LiveStream: newData.LiveStreamingLink,
             // YoutubeVideoUrl: youtubeId,
           };
         });
 
         this.setState({
           confirmedArray: newArray,
-          showIndicator: false});
+          showIndicator: false,
+        });
         newArray == ''
           ? Alert.alert('there is no content for this topic')
           : console.log(Data, ':SSSSSS');
@@ -106,8 +117,8 @@ class CourseContent extends Component {
           newArray: newArray,
           courseContent: this.state.courseContent,
           newsCourse: params.newsCourse,
-          courses:params.courses,
-          PersonDetails: params.PersonDetails
+          courses: params.courses,
+          PersonDetails: params.PersonDetails,
         });
       })
       .catch((err) => {
@@ -118,12 +129,12 @@ class CourseContent extends Component {
   render() {
     const {state, setParams, navigate} = this.props.navigation;
     const params = state.params || {};
-    console.log(this.state.confirmedArray, ":WERRCRCFJVFYJFG")
-    
+    console.log(this.state.confirmedArray, ':WERRCRCFJVFYJFG');
+
     return (
       <DrawerLayoutAndroid
-      drawerWidth={260}
-      drawerPosition="left"
+        drawerWidth={260}
+        drawerPosition="left"
         renderNavigationView={() => (
           <Menu
             navigation={this.props.navigation}
@@ -151,21 +162,24 @@ class CourseContent extends Component {
             </View>
           </View>
           <View style={styles.mainContainer}>
+            <ScrollView>
+         
             <Text
               style={{
                 textAlign: 'center',
                 fontSize: 18,
                 fontWeight: 'bold',
                 margin: 15,
+                color: "black"
               }}>
-              Course: {params.newsCourse}
+              COURSE: {params.newsCourse.toUpperCase()} 
             </Text>
 
             <View
               style={{
                 borderBottomWidth: 1,
                 borderBottomColor: 'green',
-                width: '90%',
+                width: '70%',
                 marginBottom: 15,
                 alignSelf: 'center',
               }}
@@ -177,6 +191,7 @@ class CourseContent extends Component {
                 fontFamily: 'sans-serif-light',
                 fontSize: 18,
                 marginBottom: 20,
+                marginLeft: 10
               }}>
               Topics:
             </Text>
@@ -190,6 +205,7 @@ class CourseContent extends Component {
               textStyle={styles.spinnerTextStyle}
             />
             <View>
+  
               {params.newArray.map((items, index) => {
                 return (
                   <SectionList
@@ -200,7 +216,7 @@ class CourseContent extends Component {
                     renderItem={({item}) => (
                       <View style={styles.container1}>
                         <View>
-                          <TouchableOpacity
+                          <TouchableWithoutFeedback
                             id={item.Id}
                             onPress={() => {
                               this.viewCourseContentDetails(items.Id);
@@ -214,8 +230,25 @@ class CourseContent extends Component {
                               );
                               console.log('BARNNNNNN:', params.newArray);
                             }}>
-                            <Text style={styles.fileClick}>{items.Name}</Text>
-                          </TouchableOpacity>
+                            <View
+                              style={{
+                                display: "flex",
+                                flexDirection: 'row',
+                                justifyContent: "space-between",
+                              }}>
+                              <View style={{width: "90%"}}>
+                                <Text style={styles.fileClick}>
+                                  {items.Name.toUpperCase()}
+                                </Text>
+                              </View>
+                              <View>
+                                <MaterialIcons name="keyboard-arrow-right" style={{fontSize:20,marginTop: 3}} />
+                              </View>
+                            </View>
+                          </TouchableWithoutFeedback>
+                          <View
+                           style={{borderWidth: 0.5, borderColor:"#ECECEC", marginTop:5}}
+                          />
                         </View>
                       </View>
                     )}
@@ -226,7 +259,9 @@ class CourseContent extends Component {
                   />
                 );
               })}
+             
             </View>
+           </ScrollView>
           </View>
         </KeyboardAvoidingView>
       </DrawerLayoutAndroid>
@@ -260,7 +295,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#17732B',
     height: 52,
-    elevation: 10
+    elevation: 10,
   },
 
   headerWrapper1: {
@@ -269,20 +304,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   container1: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    // display: 'flex',
+    // flexDirection: 'row',
+    // justifyContent: 'space-between',
     margin: 5,
   },
   fileClick: {
     alignSelf: 'center',
-    fontSize: 16,
-    borderWidth: 0.11,
+    fontSize: 14,
     padding: 5,
-    borderRadius: 5,
-    width: 300,
-    borderColor: 'green',
-    fontFamily: 'sans-serif-medium',
+    fontFamily: 'sans-serif-light',
+    paddingRight:100,
+    color: "black",
+    width: "100%"
   },
   mainContainer: {
     margin: 15,

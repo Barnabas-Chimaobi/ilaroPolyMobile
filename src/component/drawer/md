@@ -470,3 +470,706 @@ const styles = StyleSheet.create({
           );
         })}
       </View>
+
+
+
+      import React, {useState} from 'react';
+import {Button, StyleSheet, TextInput, View, Text, ScrollView} from 'react-native';
+
+import {GiftedChat} from 'react-native-gifted-chat';
+
+const Apps = (props) => {
+  let [Chats, setChats] = useState([]);
+  const [name, setName] = useState('');
+  const [isEnter, setIsEnter] = useState(false);
+  const [messages, setMessages] = useState(MOCK_MESSAGES);
+
+
+  const {state, setParams, navigate} = props.navigation;
+  const params = state.params || {};
+
+  const PersonId = params.PersonDetails.Id;
+  const CourseAllo = params.courses.map((c) => {
+    return {
+      CourseAllocationId: c.CourseAllocationId,
+      CourseCode: c.CourseCode,
+      CourseId: c.CourseId,
+      CourseName: c.CourseName,
+    };
+  });
+
+  const MOCK_MESSAGES = [
+    {
+      _id: 1,
+      text: 'Hello, World!',
+      createdAt: new Date(),
+      user: {
+        _id: 2,
+        name: 'Simple Chatter',
+        avatar: 'https://cdn.pixabay.com/photo/2016/11/18/23/38/child-1837375__340.png',
+      },
+    },
+  ];
+
+
+  // const sampleCourseAllocation = CourseAllo[0];
+
+  // const loadChats = () => {
+  //   fetch(
+  //     `http://applications.federalpolyilaro.edu.ng/api/e_learning/EnterChatRoom?courseAllocationId=${sampleCourseAllocation.CourseAllocationId}&personId=${PersonId}`,
+  //   )
+  //     .then(function (response) {
+  //       return response.json();
+  //     })
+  //     .then(function (json) {
+  //       setChats(json.Output.EChatBoards);
+
+  //       const remappedMessages = Chats.map((c, index) => {
+  //         const addIndex = index + 1;
+  //         return {
+  //           _id: addIndex,
+  //           text: c.Response,
+  //           createdAt: c.DateSent,
+  //           user: {
+  //             _id: addIndex,
+  //             name: c.Sender,
+  //             avatar:
+  //               'https://cdn.pixabay.com/photo/2016/11/18/23/38/child-1837375__340.png',
+  //           },
+  //         };
+  //       });
+
+  //       setMessages(remappedMessages);
+  //     });
+  // };
+
+  // loadChats();
+  // setInterval(() => loadChats(), 10000);
+
+  // console.log('RES_22: ', Chats);
+
+  // const onSend = async (newMessages) => {
+    // const [a, ...b] = newMessages;
+    // const response = await fetch(
+    //   `http://applications.federalpolyilaro.edu.ng/api/e_learning/SaveChatResponse?courseAllocationId=${sampleCourseAllocation.CourseAllocationId}&response=${a.text}&personId=${PersonId}`,
+    // );
+
+    // const data = await response.json();
+
+  //   setMessages(GiftedChat.append(messages, newMessages));
+  // };
+
+  const onSend = newMessages => {
+    setMessages(GiftedChat.append(messages, newMessages));
+  };
+
+  if (!isEnter)
+    return (
+      <View style={styles.container}>
+        <TextInput
+          style={styles.textInput}
+          textAlign="center"
+          value={name}
+          placeholder="Name"
+          onChangeText={(text) => setName(text)}
+        />
+        <Button title="Enter" onPress={() => setIsEnter(true)} />
+      </View>
+    );
+  else {
+    const user = {
+      _id: name,
+      name,
+      avatar:
+        'https://cdn.pixabay.com/photo/2016/11/18/23/38/child-1837375__340.png',
+    };
+
+    return (
+      // <ScrollView>
+                 <View style={{flex: 1}}>
+        {/* {Chats.map((chat, index) => {
+          return (
+            <View>
+              {!chat.ActiveSender ? (
+                <View style={{display: 'flex', justifyContent: 'flex-start'}}>
+                  <Text>{chat.Sender}</Text>
+                  <Text>{chat.Response}</Text>
+                  <Text>{chat.DateSent}</Text>
+                </View>
+              ) : (
+                <View style={{display: 'flex', justifyContent: 'flex-end'}}>
+                  <Text>{chat.Sender}</Text>
+                  <Text>{chat.Response}</Text>
+                  <Text>{chat.DateSent}</Text>
+                </View>
+              )}
+            </View>
+          );
+        })} */}
+        <GiftedChat
+            messages={messages}
+            onSend={newMessages => onSend(newMessages)}
+            user={user}
+            renderUsernameOnMessage
+          />
+          {/* <TextInput style={{borderWidth: 1}}/> */}
+      </View>
+
+      // </ScrollView>
+         );
+  }
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textInput: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    width: '50%',
+  },
+});
+
+export default Apps;
+
+
+
+
+// let formdata = new FormData()
+
+// formdata.append("Api variable",MainPdf)
+  
+// const handleSubmit = async () => {
+//   const response = await 
+// }
+
+// const createFormData = (MainPdf) => {
+//   const data = new FormData();
+
+//   data.append('file', {
+//     name: MainPdf?.name,
+//     type: MainPdf?.type,
+//     uri:
+//       Platform.OS === 'android' ? `file://${MainPdf.uri}` : MainPdf.uri,
+//   });
+
+//   // Object.keys(body).forEach(key => {
+//   //   data.append(key, body[key]);
+//   // });
+
+//   return data;
+// };
+
+// const handleSubmit = () => {
+  // if(MainPdf?.name){
+  //   const body = createFormData(MainPdf);
+  //   console.log(body);
+  //  fetch(`https://applications.federalpolyilaro.edu.ng/api/e_learning/PostAssignmentAnswer?personId=${PersonId}&AssignmentId=${AssignmentId}&AssignmentInText=${Input}`, {
+  //   method: 'POST',
+  //       headers: {
+  //         'Accept': 'application/json',
+  //         'Content-Type': 'application/json'
+  //       },
+  //   body: MainPdf
+  // })
+  //   .then(response => response.json())
+  //   .then(responses => {
+  //     console.log(JSON.stringify(response, null, 4))
+  //     console.log('upload succes', responses);
+  //     alert('Upload success!');
+  //     // setMainPdf(null)
+  //   })
+  //   .catch(error => {
+  //     console.log('upload error', error);
+  //     alert('Upload failed!');
+  //   });
+
+//   let data = null;
+
+//   if(MainPdf !== null){
+//     data = new FormData()
+//     data.append('file', MainPdf)
+//   }
+
+
+//   const file = {
+//     uri: `file://${MainPdf?.uri}`,
+//     type: MainPdf?.type,
+//    name: MainPdf?.name
+  
+
+  // const data = new FormData()
+  // data.append('file', file)
+
+// console.log(file)
+  // let dt = "/home/barnabas/Downloads/exam-az-203-developing-solutions-for-microsoft-azure-skills-measured.pdf"
+
+  // let formData = new FormData()
+  // let dt = "/home/barnabas/Downloads/exam-az-203-developing-solutions-for-microsoft-azure-skills-measured.pdf"
+  // formData.append(dt, "files")
+  // formData.append("name", "file")
+
+
+  // axios({
+  //   method: 'post',
+  //   url: `https://applications.federalpolyilaro.edu.ng/api/e_learning/PostAssignmentAnswer?personId=${PersonId}&AssignmentId=${AssignmentId}&AssignmentInText=${Input}`,
+
+  //   headers: {
+  //     "Accept": "application/json",
+  //     'Content-Type': "application/json" },
+
+  //     data: FormData,
+
+  //   })
+  //   .then(function (response) {
+  //       //handle success
+  //       console.log(response);
+  //   })
+  //   .catch(function (response) {
+  //       //handle error
+  //       console.log(response);
+  //   });
+
+  // axios.post(`https://applications.federalpolyilaro.edu.ng/api/e_learning/PostAssignmentAnswer?personId=${PersonId}&AssignmentId=${AssignmentId}&AssignmentInText=${Input}`, dt)
+  // .then(res => {
+  //   console.log(res);
+  //   //console.log(res.config.data)
+  //   Alert.alert("Assignment succesfully submitted")
+  // }).catch((err)=> {
+  //   console.error(err," :there was an error")
+  // })
+
+  // axios({
+  //   url:`https://applications.federalpolyilaro.edu.ng/api/e_learning/PostAssignmentAnswer?personId=${PersonId}&AssignmentId=${AssignmentId}&AssignmentInText=${Input}`,
+  //   method:'POST',
+  //   headers:{
+  //     'Content-Type':'application/json',
+  //     //multipart/form-data
+  //   },
+  //   dt,
+  // }).then(res => {
+  //   console.log(res);
+  //   //console.log(res.config.data)
+  //   Alert.alert("Assignment succesfully submitted")
+  // }).catch((err)=> {
+  //   console.error(err," :there was an error")
+  // })
+
+  
+// }
+
+// const handleSubmit = ()=>{
+  // fetch(`https://applications.federalpolyilaro.edu.ng/api/e_learning/PostAssignmentAnswer?personId=${PersonId}&AssignmentId=${AssignmentId}&AssignmentInText=""`,{
+  //  method: "POST" ,
+  //  headers: {
+  //   "content-type": "applicationCache/json"
+  //  },
+  //  body: formdata
+  // }).then(response => response.json()).then(res => {
+  //   console.log(res, ":Success")
+  //   Alert.alert("assignment succesfully submitted")
+  // }).catch(error => {
+  //   console.log(error, ":there was an error");
+    
+  // });
+//   fetch(`https://applications.federalpolyilaro.edu.ng/api/e_learning/PostAssignmentAnswer?personId=${PersonId}&AssignmentId=${AssignmentId}&AssignmentInText=""`, {
+//     method: 'POST',
+//     headers: {
+//         'Content-Type': 'multipart/form-data'
+//     },
+//     body:JSON.stringify({
+//       file: Pdf
+
+//   })
+
+
+// }).then(response => response.json())
+//     .then(response => {
+//       console.log('upload succes', response);
+//       alert('Upload success!');
+//       setPdf(null)
+//     })
+//     .catch(error => {
+//       console.log('upload error', error);
+//       alert('Upload failed!');
+//     });
+  
+//  }
+
+
+// MARKED AS IMPORTANT
+
+class GetAssignment extends Component {
+  static navigationOptions = {
+    headerShown: false,
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentIteration: null,
+      personId: '',
+      CourseId: [],
+      assignment: '',
+      modalVisible: false,
+      isModalVisible: false,
+      activeState1: false,
+      activeState2: false,
+      activeState3: false,
+      activeState4: false,
+      // date: ""
+    };
+    this.toggleModal = this.toggleModal.bind(this);
+  }
+
+  componentDidMount() {
+    const {state, setParams, navigate} = this.props.navigation;
+    const params = state.params || {};
+
+    fetch(
+      `http://applications.federalpolyilaro.edu.ng/api/e_learning/AssignmentByCategory?personId=${params.PersonDetails.Id}`,
+    )
+      .then((response) => response.json())
+      .then((Data) => {
+        const assignmentArray = Data.Output.NotSubmittedAssignment.map(
+          (res) => {
+            return {
+              Id: res.Id,
+              Assignment: res.Assignment,
+              URL: res.URL,
+              Instructions: res.Instructions,
+              DateSet: res.DateSet,
+              DueDate: res.DueDate,
+              AssignmentinText: res.AssignmentinText,
+              Semester: res.Semester,
+              CourseName: res.CourseName,
+              CourseCode: res.CourseCode,
+            };
+          },
+        );
+        this.setState({
+          CourseId: assignmentArray,
+        });
+
+        console.log(assignmentArray, ':DDDDDDDDDDDD');
+        console.log(params);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  remapp = (assignmentId) => {
+    console.log('ASSIGN ID: ', assignmentId);
+    const newObject = this.state.CourseId.map((item) => {
+      return {
+        Id: item.Id,
+        instruction1: item.Instructions,
+        Text: item.AssignmentinText,
+        Url: item.URL,
+        Semester: item.Semester,
+        DateSet: item.DateSet,
+        DueDate: item.DueDate,
+        Assignment: item.Assignment,
+        CourseName: item.CourseName,
+        CourseCode: item.CourseCode,
+      };
+    });
+
+    const {state, setParams, navigate} = this.props.navigation;
+    const params = state.params || {};
+
+    this.setState({modalVisible: false});
+
+    const selectedAsignment = newObject.find((as) => as.Id === assignmentId);
+
+    console.log(selectedAsignment, ':ASDDDDDDD');
+    this.setState({assignment: selectedAsignment});
+    console.log(this.state.assignment, ':ASSIGNMT');
+    this.props.navigation.navigate('ViewAssignment', {
+      finds: selectedAsignment,
+      PersonDetails: params.PersonDetails,
+    });
+  };
+
+  toggleModal() {
+    this.setState({
+      isOpen: true,
+    });
+  }
+
+  handlePress() {
+    this.setState({modalVisible: true});
+    return this.state.modalVisible;
+  }
+
+  renderBtnConditionally(item) {
+    const {state, setParams, navigate} = this.props.navigation;
+    const params = state.params || {};
+    return this.state.modalVisible ? (
+      <View
+        style={{
+          height: 60,
+          width: 120,
+          borderWidth: 0.5,
+          backgroundColor: 'white',
+          borderColor: 'gray',
+          marginLeft: -95,
+          paddingTop: 10,
+          marginTop: -50,
+          elevation: 5,
+          paddingLeft: 5,
+        }}>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            this.remapp(item.Id);
+          }}>
+          <Text style={{color: 'green'}}>View Assignment</Text>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            this.remapp(item.Id);
+            this.props.navigation.navigate('SubmitAssignment', {
+              PersonDetails: params.PersonDetails,
+              CourseId: this.state.assignment,
+            });
+          }}>
+          <Text style={{color: 'green', paddingTop: 10}}>
+            Submit Assignment
+          </Text>
+        </TouchableWithoutFeedback>
+      </View>
+    ) : null;
+  }
+
+  render() {
+    const activeStyle = {
+      // borderTopWidth: 5,
+      // borderTopColor: 'green',
+      // paddingTop: -15,
+    };
+    const activePosition = {
+      // position: 'absolute',
+      position: 'absolute',
+      top: 27,
+      // backgroundColor: 'green',
+      borderBottomColor: 'green',
+      borderBottomWidth: 5,
+      // borderRadius: 50,
+      width: 120,
+      height: 5,
+      alignSelf: 'center',
+    };
+
+    const {state, setParams, navigate} = this.props.navigation;
+    const params = state.params || {};
+
+    return (
+      <View style={{flex: 1}}>
+        <View style={styles.headerWrapper}>
+          <View style={styles.headerWrapper1}>
+            <TouchableNativeFeedback
+              onPress={() => {
+                this.props.navigation.navigate('Dashboard');
+              }}>
+              <MaterialIcons
+                name="arrow-back"
+                style={{color: 'white', fontSize: 27, marginLeft: 15}}
+              />
+            </TouchableNativeFeedback>
+            <Text style={{fontSize: 22, color: 'white', marginLeft: 20}}>
+              Back
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.footer}>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              return this.props.navigation.navigate('GetAssignment');
+            }}>
+            <View
+              style={
+                // this.state.activeState1 &&
+                this.props.navigation.state.routeName === 'GetAssignment'
+                  ? activeStyle
+                  : ''
+              }>
+              <View
+                style={
+                  this.props.navigation.state.routeName === 'GetAssignment'
+                    ? //  &&
+                      // this.state.activeState1
+                      activePosition
+                    : ''
+                }></View>
+              <Text style={styles.text1}>Pending Assignment</Text>
+            </View>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              // this.setState({
+              //   activeState2: true,
+              //   activeState1: false,
+              //   activeState3: false,
+              //   activeState4: false
+              // });
+              this.props.navigation.navigate('SubmittedAssignment', {
+                PersonDetails: params.PersonDetails,
+              });
+            }}>
+            <View
+              style={
+                // this.state.activeState2
+                this.props.navigation.state.routeName ===
+                  'SubmittedAssignment' && activeStyle
+              }>
+              <View
+                style={
+                  // this.state.activeState2
+                  this.props.navigation.state.routeName ===
+                    'SubmittedAssignment' && activePosition
+                }></View>
+              <Text style={styles.text}>Submitted Assignment</Text>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+        <View style={{flex: 1}}>
+          <ScrollView>
+            <Text style={{margin: 10, fontSize: 15}}>
+              * Assignment yet to be Submitted
+            </Text>
+            <View>
+              {this.state.CourseId.map((item, index) => {
+                const dt = new Date(item.DueDate);
+                const yeah = dt.toDateString();
+
+                const dts = new Date(item.DueDate);
+                var hours = dts.getHours() - 1;
+                var minutes = dts.getMinutes();
+                var ampm = hours >= 12 ? 'pm' : 'am';
+                hours = hours % 12;
+                hours = hours ? hours : 12; // the hour '0' should be '12'
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                var strTime = hours + ':' + minutes + ' ' + ampm;
+                let trueTime = `${yeah} ${strTime}`;
+                return (
+                  <TouchableWithoutFeedback
+                    onPress={() => {
+                      this.setState({
+                        modalVisible: false,
+                      });
+                    }}>
+                    <View>
+                      <View key={index}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                          }}>
+                          <View style={{flexDirection: 'row'}}>
+                            <Image
+                              source={require('../../assets/fine-books.png')}
+                              style={{
+                                margin: 8,
+                                marginTop: 25,
+                                width: 45,
+                                height: 45,
+                              }}
+                            />
+
+                            <View style={{marginTop: 15}}>
+                              <Text style={{fontWeight: 'bold', width: '98%'}}>
+                                {item.CourseCode}- {item.CourseName}
+                              </Text>
+                              <Text style={{width: 270}}>
+                                {item.Assignment}
+                              </Text>
+
+                              <View style={{flexDirection: 'row'}}>
+                                <Image
+                                  source={require('../../assets/schedule.png')}
+                                  style={{marginRight: 5}}
+                                />
+                                <Text>{trueTime}</Text>
+                              </View>
+                            </View>
+                          </View>
+
+                          <View style={{marginLeft: -50}}>
+                            <TouchableWithoutFeedback
+                              onPress={() => {
+                                this.setState({
+                                  currentIteration: index,
+                                  modalVisible: true,
+                                });
+                              }}>
+                              <MaterialIcon
+                                style={{
+                                  color: 'gray',
+                                  fontSize: 20,
+                                  marginTop: 20,
+                                }}
+                                name="more-vert"
+                              />
+                            </TouchableWithoutFeedback>
+
+                            {this.state.currentIteration === index
+                              ? this.renderBtnConditionally(item)
+                              : null}
+                          </View>
+                        </View>
+                      </View>
+                      <View
+                        style={{
+                          borderBottomWidth: 0.5,
+                          borderBottomColor: 'gray',
+                          width: '83%',
+                          marginBottom: 5,
+                          marginTop: 12,
+                          marginLeft: 50,
+                        }}
+                      />
+                    </View>
+                  </TouchableWithoutFeedback>
+                );
+              })}
+            </View>
+          </ScrollView>
+        </View>
+      </View>
+    );
+  }
+}
+
+       <Root>
+            <Container >
+        
+        <Content style={{position: 'absolute', left: 0, right: 0, bottom: 0}} padder>
+          <Button
+            onPress={() =>
+            ActionSheet.show(
+              {
+                options: BUTTONS,
+                cancelButtonIndex: CANCEL_INDEX,
+                destructiveButtonIndex: DESTRUCTIVE_INDEX,
+                title: "Testing ActionSheet"
+              },
+              buttonIndex => {
+                this.setState({ clicked: BUTTONS[buttonIndex[]]}, this.makeCall());
+              },
+              // buttonIndex => {
+              //   this.setState({ clicked: BUTTONS[buttonIndex[1]]}, this.props.navigation.navigate("Support"));
+              // }
+            )}
+          >
+            <Text>Actionsheet</Text>
+          </Button>
+        </Content>
+      </Container>
+      </Root>

@@ -8,19 +8,18 @@ import {
   StyleSheet,
   SectionList,
   Text,
-  TouchableNativeFeedback,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
   AsyncStorage,
   DrawerLayoutAndroid,
   Linking,
   Alert,
-  Image
+  Image,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
 import Unorderedlist from 'react-native-unordered-list';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import Menu from '../drawer/menu';
+import Menu from '../drawer/menu'
 // import {Item} from 'native-base';
 
 const VideoTutorial = (props) => {
@@ -37,7 +36,7 @@ const VideoTutorial = (props) => {
     <KeyboardAvoidingView style={{flex: 1}} behavior="padding" enabled>
       <View style={styles.headerWrapper}>
         <View style={styles.headerWrapper1}>
-          <TouchableNativeFeedback
+          <TouchableWithoutFeedback
             onPress={() => {
               props.navigation.navigate('CourseContentDetails');
             }}>
@@ -45,7 +44,7 @@ const VideoTutorial = (props) => {
               name="arrow-back"
               style={{color: 'white', fontSize: 27, marginLeft: 15}}
             />
-          </TouchableNativeFeedback>
+          </TouchableWithoutFeedback>
           <Text style={{fontSize: 22, color: 'white', marginLeft: 20}}>
             Back
           </Text>
@@ -59,6 +58,7 @@ const VideoTutorial = (props) => {
               fontSize: 18,
               fontWeight: 'bold',
               margin: 10,
+              color: "black"
             }}>
             Course: {params.newsCourse}
           </Text>
@@ -72,7 +72,7 @@ const VideoTutorial = (props) => {
               fontFamily: 'sans-serif-thin',
               color: 'green',
             }}>
-            Topic: {params.courseContent} (Video Tutorial)
+            Topic: {params.courseContent.toUpperCase()} (Video Tutorial)
           </Text>
           <View
             style={{
@@ -86,60 +86,78 @@ const VideoTutorial = (props) => {
         </View>
         <View>
           {params.newArray.map((items, index) => {
-            return items.VideoUrl && typeof items.VideoUrl !== 'undefined' ? (
-              <View>
+            // return items.VideoUrl && typeof items.VideoUrl !== 'undefined' ? (
+              return (
+              <View>{
+                items.VideoUrl !== null?
                 <SectionList
                   sections={[{title: 'Videos', data: [items.VideoUrl]}]}
                   renderItem={({item}) => (
-                    <View style={styles.container1}>
-                           <View style={styles.fileName}>
-                        {/* <Text>{items.Url.substring([20], items.Url.length).split(".")[0]}</Text> */}
+                    <View>
+                      <TouchableWithoutFeedback
+                        onPress={() => {
+                          items.VideoUrl &&
+                          typeof items.VideoUrl !== 'undefined'
+                            ? Linking.openURL(item)
+                            : Alert.alert(
+                                'There is no video content to display',
+                              );
+                        }}>
+                        <View style={styles.container1}>
+                          <View style={{flexDirection: 'row'}}>
+                            <View>
+                              <Image
+                                source={require('../../assets/video-player.png')}
+                                style={{
+                                  width: 20,
+                                  height: 20,
+                                  alignSelf: 'center',
+                                  marginTop: 8,
+                                  marginRight: 7,
+                                }}
+                              />
+                            </View>
 
-                        <View>
-                        <Image
-                 source={require("../../assets/cbt.png")}
-                 style={{
-                  width: 20,
-                  height:20,
-                  alignSelf: 'center',
-                  marginTop: 8,
-                  marginRight: 7
-                }}
-                  />
+                            <View>
+                              <Text
+                                style={{
+                                  fontFamily: 'sans-serif-light',
+                                  fontSize: 15,
+                                  paddingTop: 10,
+                                  color: "black"
+                                }}>
+                                VIDEO TUTORIAL {index + 1}
+                              </Text>
+                            </View>
+                          </View>
+                          <View>
+                            <MaterialIcons
+                              name="play-arrow"
+                              style={{fontSize: 20, marginTop: 9}}
+                            />
+                          </View>
                         </View>
-                        <View>
-                          <Text
-                            style={{
-                              fontFamily: 'sans-serif-light',
-                              fontSize: 15,
-                              paddingTop:10
-                            }}>
-                            Video Tutorial {index +1}
-                          </Text>
-                        </View>
+                      </TouchableWithoutFeedback>
+                      <View
+                        style={{
+                          borderWidth: 0.5,
+                          borderColor: '#ECECEC',
+                          marginTop: 5,
+                          width: '97%',
+                        }}
+                      />
                       </View>
-                      <View>
-                        <TouchableOpacity
-                          onPress={() => {
-                            items.VideoUrl &&
-                            typeof items.VideoUrl !== 'undefined'
-                              ? Linking.openURL(item)
-                              : Alert.alert(
-                                  'There is no video content to display',
-                                );
-                          }}>
-                          <Text style={styles.item}>watch</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
+                   
+                    
                   )}
                   // renderSectionHeader={({section}) => (
                   //   <Text style={styles.sectionHeader}>{section.title}</Text>
                   // )}
                   keyExtractor={(item, index) => index}
-                />
+                />: index===0? Alert.alert("no content") : null
+                }
               </View>
-            ) : null;
+            )
           })}
         </View>
       </View>
@@ -186,7 +204,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#17732B',
     height: 52,
-    elevation: 10
+    elevation: 10,
   },
 
   headerWrapper1: {
